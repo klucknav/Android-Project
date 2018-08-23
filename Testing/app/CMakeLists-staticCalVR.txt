@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.4.1)
 # Specify critical Calvr build variables.
 SET(DYNAMIC_LINKING OFF CACHE BOOL "Build statically")
 
-set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../..")
+set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 
 # Build and reference OpenSceneGraph.
 SET(MXML_INCLUDE_DIR "${MXML_SOURCE_DIR}")

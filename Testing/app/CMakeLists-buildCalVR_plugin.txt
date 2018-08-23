@@ -1,6 +1,6 @@
 # Calvr plugin
 
-set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../..")
+set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 
 SET(CALVR_PLUGIN_SOURCE_DIR "${EXT_PROJ_DIR}/calvr_plugins")
 SET(CALVR_PLUGIN_BUILD_DIR "${EXT_PROJ_DIR}/calvr_plugins/build/${ANDROID_ABI}")

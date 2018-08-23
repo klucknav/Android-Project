@@ -69,7 +69,7 @@ include(CMakeLists-staticCalVR.txt)
 include(CMakeLists-buildCalVR_plugin.txt)
 
 
-#set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../..")
+#set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 
 
 ## import the arcore library ##
