@@ -1,0 +1,52 @@
+add_library(arBasic
+            SHARED
+            #src/main/cpp/jni_interface.cpp
+            src/main/cpp/ar_application.cpp
+            src/main/cpp/util.cpp
+            src/main/cpp/background_renderer.cpp
+
+            src/main/cpp/osg_utils.cpp
+            src/main/cpp/jni_interface_osg.cpp
+            src/main/cpp/osg_application.cpp
+            src/main/cpp/glDrawable.cpp
+            src/main/cpp/osg_background.cpp)
+
+
+target_include_directories(arBasic PRIVATE
+           src/main/cpp
+           ${ANDROID_NDK}/sources/third_party/vulkan/src/libs/glm)
+
+
+target_link_libraries(  arBasic
+
+                        android
+                        mediandk
+                        log
+                        GLESv2
+                        GLESv3
+                        arcore
+                        mxml    # ADDED
+
+                        #need for osg
+                        osgPresentation               # For osg, the dependency relations:
+                        osgWidget                     # osgPresentation: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgPresentation.png
+                        osgUI                         # osgdb_osg: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_osg.png
+                        osgManipulator                # osgdb_serializers_osg:
+                        osgAnimation                  # https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_serializers_osg.png
+                        osgViewer                     # (These three are the "roots" of the trees)
+                        osgVolume                     #
+                        osgSim                        #
+                        osgShadow                     #
+                        osgTerrain                    #
+                        osgParticle                   #
+                        osgFX                         #
+                        z                             #
+                        osgText                       #
+                        osgGA                         #
+                        osgdb_osg                     #
+                        osgdb_serializers_osg         #
+                        osgDB                         #
+                        osgUtil                       #
+                        osg
+                        OpenThreads
+                        )

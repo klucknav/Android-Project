@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/activity_item"
+        android:icon="@drawable/ic_forward"
+        app:showAsAction="ifRoom"
+        android:title="new Activity" />
+
+    <item android:title="Move World" android:id="@+id/moveWorld"/>
+    <item android:title="Scale" android:id="@+id/scale"/>
+    <item android:title="Drive" android:id="@+id/drive"/>
+    <item android:title="Fly" android:id="@+id/fly"/>
+    <item android:title="Reset" android:id="@+id/reset"/>
+
+</menu>

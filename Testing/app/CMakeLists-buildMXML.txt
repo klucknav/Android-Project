@@ -1,0 +1,13 @@
+## CMakeLists-buildMXML.txt ##
+set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../..")
+
+# set mini-xml build variables
+SET(MXML_SOURCE_DIR "${EXT_PROJ_DIR}/mxml-2.11")
+SET(MXML_BUILD_DIR "${EXT_PROJ_DIR}/mxml-2.11/build/${ANDROID_ABI}")
+
+# Mini-XML - first time build
+file(MAKE_DIRECTORY ${MXML_BUILD_DIR})
+add_subdirectory(${MXML_SOURCE_DIR} ${MXML_BUILD_DIR})
+
+include_directories(${MXML_SOURCE_DIR})
+include_directories(${MXML_BUILD_DIR}/include)
