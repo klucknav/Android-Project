@@ -8,6 +8,11 @@
 
 // Initialize OSG plugins when OpenSceneGraph is built as a static library.
 USE_OSGPLUGIN(osg2)
+// TODO: rebuild osg adding the osgdb_rgbd to the Kernel libraries
+//USE_OSGPLUGIN(rgb)
+//USE_OSGPLUGIN(tiff)   // uncommenting this line causes the error 
+//USE_OSGPLUGIN(png)
+//USE_OSGPLUGIN(jpeg)
 USE_SERIALIZER_WRAPPER_LIBRARY(osg)
 
 using namespace osg;
