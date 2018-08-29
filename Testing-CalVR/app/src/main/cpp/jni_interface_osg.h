@@ -21,6 +21,7 @@ extern "C" {
     JNI_METHOD(void, JNIsetDelta)(JNIEnv *env, jclass type, jfloat deltaX, jfloat deltaY, jfloat x, jfloat y);
     JNI_METHOD(void, JNIsetMode)(JNIEnv *env, jclass type, jint newMode);
     JNI_METHOD(void, JNIreset)(JNIEnv *env, jclass type);
+    JNI_METHOD(void, JNIswitchView)(JNIEnv *env, jclass type);
 
     JNI_METHOD(jboolean, JNIhasDetectedPlane)(JNIEnv*, jclass);
 

@@ -1,4 +1,4 @@
-set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
+#set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 set(OSG_SOURCE_DIR "${EXT_PROJ_DIR}/OpenSceneGraph-3.6.2")
 set(OSG_BUILD_DIR "${EXT_PROJ_DIR}/OpenSceneGraph-3.6.2/build/${ANDROID_ABI}")
 
@@ -26,6 +26,22 @@ set_target_properties(osgdb_osg PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/li
 
 add_library(osgdb_serializers_osg STATIC IMPORTED)
 set_target_properties(osgdb_serializers_osg PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgdb_serializers_osgd.a)
+
+
+## add image imports ##
+#add_library(osgdb_rgb STATIC IMPORTED)
+#set_target_properties(osgdb_rgb PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgdb_rgbd.a)
+
+add_library(osgdb_tiff STATIC IMPORTED)
+set_target_properties(osgdb_tiff PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgdb_tiffd.a)
+
+add_library(osgdb_png STATIC IMPORTED)
+set_target_properties(osgdb_png PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgdb_pngd.a)
+
+add_library(osgdb_jpeg STATIC IMPORTED)
+set_target_properties(osgdb_jpeg PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgdb_jpegd.a)
+## end image imports ##
+
 
 add_library(osgUtil STATIC IMPORTED)
 set_target_properties(osgUtil PROPERTIES IMPORTED_LOCATION ${OSG_BUILD_DIR}/lib/libosgUtild.a)

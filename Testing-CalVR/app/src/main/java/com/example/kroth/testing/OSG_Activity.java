@@ -2,6 +2,7 @@ package com.example.kroth.testing;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,7 +25,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class OSG_Activity extends AppCompatActivity {
+public class OSG_Activity extends AppCompatActivity implements DisplayManager.DisplayListener{
 
     private GLSurfaceView surfaceView;
 
@@ -87,14 +88,8 @@ public class OSG_Activity extends AppCompatActivity {
             public boolean onSingleTapUp(MotionEvent e) {
                 float x = e.getX();
                 float y = e.getY();
-//                float x2 = x/mDensity/20f;
-//                float y2 = y/mDensity/20f;
-                float x2 = (float) (x/525.0 - 1.0);
-                float y2 = (float) -(y/1000.0 - 1.0);
-                //message.setText("Single tap\n" + x + " " + y + "\n" + x2 + " " + y2);
                 message.setText("Single tap");
-                //JniInterfaceOSG.JNIonTouched(x2, y2);
-                JniInterfaceOSG.JNIpressMouse(false, e.getX(), e.getY());
+                JniInterfaceOSG.JNIpressMouse(false, x, y);
                 return true;
             }
 
@@ -107,11 +102,11 @@ public class OSG_Activity extends AppCompatActivity {
             @Override
             public void onLongPress(MotionEvent e) {
                 message.setText("Long Press");
-                float x = e.getX();
-                float y = e.getY();
-                float x2 = (float) (x/525.0 - 1.0);
-                float y2 = (float) -(y/1000.0 - 1.0);
-                //JniInterfaceOSG.JNIonLongPress(x2, y2);
+//                float x = e.getX();
+//                float y = e.getY();
+//                float x2 = (float) (x/525.0 - 1.0);
+//                float y2 = (float) -(y/1000.0 - 1.0);
+//                JniInterfaceOSG.JNIonLongPress(x2, y2);
                 super.onLongPress(e);
             }
 
@@ -150,16 +145,6 @@ public class OSG_Activity extends AppCompatActivity {
                 float deltaY = (y - mPrevY) / mDensity / 50f;
 
                 JniInterfaceOSG.JNIsetDelta(deltaX, deltaY, x, y);
-                // original call
-                /*if (currMode == FLY) {
-                    JniInterfaceOSG.moveMouse(x, y);
-                }
-                if (currMode == DRIVE) {
-                    JniInterfaceOSG.moveMouse(x, mInitY);
-                }
-                else {  // MOVE_WORLD and SCALE
-                    JniInterfaceOSG.setDelta(deltaX, deltaY, x, y);
-                }*/
                 mPrevX = x;
                 mPrevY = y;
             }
@@ -188,6 +173,7 @@ public class OSG_Activity extends AppCompatActivity {
             @Override
             public void onOneFingerDoubleTap() {
                 message.setText("1 finger - Double Tap");
+                JniInterfaceOSG.JNIswitchView();
             }
 
             @Override
@@ -276,12 +262,16 @@ public class OSG_Activity extends AppCompatActivity {
         }
         JniInterfaceOSG.JNIonResume(getApplicationContext(), this);
         surfaceView.onResume();
+
+        Objects.requireNonNull(getSystemService(DisplayManager.class)).registerDisplayListener(this, null);
     }
     @Override
     protected void onPause() {
         super.onPause();
         JniInterfaceOSG.JNIonPause();
         surfaceView.onPause();
+
+        Objects.requireNonNull(getSystemService(DisplayManager.class)).unregisterDisplayListener(this);
     }
     @Override
     protected void onDestroy() {
@@ -320,6 +310,17 @@ public class OSG_Activity extends AppCompatActivity {
             JniInterfaceOSG.JNIonGlSurfaceCreated();
         }
     }
+
+    // -------------------- DISPLAY LISTENER METHODS -------------------- //
+    @Override
+    public void onDisplayAdded(int i) {    }
+
+    @Override
+    public void onDisplayRemoved(int i) {    }
+
+    @Override
+    public void onDisplayChanged(int i) { viewportChanged = true; }
+    // -------------------- END DISPLAY LISTENER METHODS -------------------- //
 
     // -------------------- MENU OPTIONS + TO OPEN THE CalVR ACTIVITY -------------------- //
     public void openCalVR_Activity(){

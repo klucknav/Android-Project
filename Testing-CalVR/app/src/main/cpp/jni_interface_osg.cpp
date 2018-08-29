@@ -64,7 +64,9 @@ JNI_METHOD(void, JNIsetMode)(JNIEnv *env, jclass type, jint newMode) {
 JNI_METHOD(void, JNIreset)(JNIEnv *env, jclass type) {
     native(nativePtr)->reset();
 }
-
+JNI_METHOD(void, JNIswitchView)(JNIEnv *env, jclass type){
+    native(nativePtr)->switchView();
+}
 
 
 JNI_METHOD(jboolean, JNIhasDetectedPlane)(JNIEnv*, jclass){

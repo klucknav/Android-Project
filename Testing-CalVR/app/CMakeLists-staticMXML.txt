@@ -1,5 +1,5 @@
 ## CMakeLists-staticMXML.txt ##
-set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
+#set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 
 # Specify critical mini-xml build variables.
 SET(MXML_SOURCE_DIR "${EXT_PROJ_DIR}/mxml-2.11")

@@ -35,6 +35,7 @@ SET(KERNEL_LIBRARIES
     osgText                       #
     osgGA                         #
     osgdb_tiff
+    #osgdb_rgb
     osgdb_png
     osgdb_jpeg
     osgdb_osg                     #
@@ -52,24 +53,27 @@ SET(KERNEL_LIBRARIES
     GLESv2                        #
 )
 
+
+# Path to external projects:
+set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
+
+
 # build the dependencies (tiff, png, jpeg)
 include(CMakeLists-dependencies.txt)
 
 # build OSG, Mini-XML, and CalVR
-include(CMakeLists-buildOSG.txt)
+#include(CMakeLists-buildOSG.txt)
 #include(CMakeLists-buildMXML.txt)
 #include(CMakeLists-buildCalVR.txt)
 
 # static build OSG, Mini-XML, and CalVR
-#include(CMakeLists-staticOSG.txt)
+include(CMakeLists-staticOSG.txt)
 include(CMakeLists-staticMXML.txt)
 include(CMakeLists-staticCalVR.txt)
 
-# build the plugin
+# build the plugin(s)
 include(CMakeLists-buildCalVR_plugin.txt)
 
-
-#set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
 
 
 ## import the arcore library ##

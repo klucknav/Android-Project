@@ -10,184 +10,181 @@
 namespace util {
 
 void CheckGlError(const char* operation) {
-  bool anyError = false;
-  for (GLint error = glGetError(); error; error = glGetError()) {
-    LOGE("after %s() glError (0x%x)\n", operation, error);
-    anyError = true;
-  }
-  if (anyError) {
-    abort();
-  }
+    bool anyError = false;
+    for (GLint error = glGetError(); error; error = glGetError()) {
+        LOGE("after %s() glError (0x%x)\n", operation, error);
+        anyError = true;
+    }
+    if (anyError) {
+        abort();
+    }
 }
 
 // Convenience function used in CreateProgram below.
 static GLuint LoadShader(GLenum shader_type, const char* shader_source) {
-  GLuint shader = glCreateShader(shader_type);
-  if (!shader) {
-    return shader;
-  }
-
-  glShaderSource(shader, 1, &shader_source, nullptr);
-  glCompileShader(shader);
-  GLint compiled = 0;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-
-  if (!compiled) {
-    GLint info_len = 0;
-
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
-    if (!info_len) {
-      return shader;
+    GLuint shader = glCreateShader(shader_type);
+    if (!shader) {
+        return shader;
     }
 
-    char* buf = reinterpret_cast<char*>(malloc(info_len));
-    if (!buf) {
-      return shader;
-    }
+    glShaderSource(shader, 1, &shader_source, nullptr);
+    glCompileShader(shader);
+    GLint compiled = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 
-    glGetShaderInfoLog(shader, info_len, nullptr, buf);
-    LOGE("util::Could not compile shader %d:\n%s\n", shader_type,
-         buf);
-    free(buf);
-    glDeleteShader(shader);
-    shader = 0;
-  }
+    if (!compiled) {
+        GLint info_len = 0;
 
-  return shader;
-}
-
-GLuint CreateProgram(const char* vertex_shader_file_name,
-                     const char* fragment_shader_file_name,
-                     AAssetManager* asset_manager) {
-  std::string VertexShaderContent;
-  if (!LoadTextFileFromAssetManager(vertex_shader_file_name, asset_manager,
-                                    &VertexShaderContent)) {
-    LOGE("Failed to load file: %s", vertex_shader_file_name);
-    return 0;
-  }
-
-  std::string FragmentShaderContent;
-  if (!LoadTextFileFromAssetManager(fragment_shader_file_name, asset_manager,
-                                    &FragmentShaderContent)) {
-    LOGE("Failed to load file: %s", fragment_shader_file_name);
-    return 0;
-  }
-
-  GLuint vertexShader =
-      LoadShader(GL_VERTEX_SHADER, VertexShaderContent.c_str());
-  if (!vertexShader) {
-    return 0;
-  }
-
-  GLuint fragment_shader =
-      LoadShader(GL_FRAGMENT_SHADER, FragmentShaderContent.c_str());
-  if (!fragment_shader) {
-    return 0;
-  }
-
-  GLuint program = glCreateProgram();
-  if (program) {
-    glAttachShader(program, vertexShader);
-    CheckGlError("util::glAttachShader");
-    glAttachShader(program, fragment_shader);
-    CheckGlError("util::glAttachShader");
-    glLinkProgram(program);
-    GLint link_status = GL_FALSE;
-    glGetProgramiv(program, GL_LINK_STATUS, &link_status);
-    if (link_status != GL_TRUE) {
-      GLint buf_length = 0;
-      glGetProgramiv(program, GL_INFO_LOG_LENGTH, &buf_length);
-      if (buf_length) {
-        char* buf = reinterpret_cast<char*>(malloc(buf_length));
-        if (buf) {
-          glGetProgramInfoLog(program, buf_length, nullptr, buf);
-          LOGE("util::Could not link program:\n%s\n", buf);
-          free(buf);
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_len);
+        if (!info_len) {
+            return shader;
         }
-      }
-      glDeleteProgram(program);
-      program = 0;
+
+        char* buf = reinterpret_cast<char*>(malloc(info_len));
+        if (!buf) {
+            return shader;
+        }
+
+        glGetShaderInfoLog(shader, info_len, nullptr, buf);
+        LOGE("util::Could not compile shader %d:\n%s\n", shader_type, buf);
+        free(buf);
+        glDeleteShader(shader);
+        shader = 0;
     }
-  }
-  return program;
+
+    return shader;
 }
 
-bool LoadTextFileFromAssetManager(const char* file_name,
-                                  AAssetManager* asset_manager,
+GLuint CreateProgram(const char* vertex_shader_file_name, const char* fragment_shader_file_name,
+                     AAssetManager* asset_manager) {
+
+    std::string VertexShaderContent;
+    if (!LoadTextFileFromAssetManager(vertex_shader_file_name, asset_manager, &VertexShaderContent)) {
+        LOGE("Failed to load file: %s", vertex_shader_file_name);
+        return 0;
+    }
+
+    std::string FragmentShaderContent;
+    if (!LoadTextFileFromAssetManager(fragment_shader_file_name, asset_manager, &FragmentShaderContent)) {
+        LOGE("Failed to load file: %s", fragment_shader_file_name);
+        return 0;
+    }
+
+    GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, VertexShaderContent.c_str());
+    if (!vertexShader) {
+        return 0;
+    }
+
+    GLuint fragment_shader = LoadShader(GL_FRAGMENT_SHADER, FragmentShaderContent.c_str());
+    if (!fragment_shader) {
+        return 0;
+    }
+
+    GLuint program = glCreateProgram();
+    if (program) {
+        glAttachShader(program, vertexShader);
+        CheckGlError("util::glAttachShader");
+        glAttachShader(program, fragment_shader);
+        CheckGlError("util::glAttachShader");
+        glLinkProgram(program);
+        GLint link_status = GL_FALSE;
+        glGetProgramiv(program, GL_LINK_STATUS, &link_status);
+        if (link_status != GL_TRUE) {
+            GLint buf_length = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &buf_length);
+            if (buf_length) {
+                char* buf = reinterpret_cast<char*>(malloc(buf_length));
+                if (buf) {
+                    glGetProgramInfoLog(program, buf_length, nullptr, buf);
+                    LOGE("util::Could not link program:\n%s\n", buf);
+                    free(buf);
+                }
+            }
+            glDeleteProgram(program);
+            program = 0;
+        }
+    }
+    return program;
+}
+
+bool LoadTextFileFromAssetManager(const char* file_name, AAssetManager* asset_manager,
                                   std::string* out_file_text_string) {
-  // If the file hasn't been uncompressed, load it to the internal storage.
-  // Note that AAsset_openFileDescriptor doesn't support compressed
-  // files (.obj).
-  AAsset* asset =
-      AAssetManager_open(asset_manager, file_name, AASSET_MODE_STREAMING);
-  if (asset == nullptr) {
-    LOGE("Error opening asset %s", file_name);
-    return false;
-  }
+    // If the file hasn't been uncompressed, load it to the internal storage.
+    // Note that AAsset_openFileDescriptor doesn't support compressed
+    // files (.obj).
+    AAsset* asset = AAssetManager_open(asset_manager, file_name, AASSET_MODE_STREAMING);
+    if (asset == nullptr) {
+        LOGE("Error opening asset %s", file_name);
+        return false;
+    }
 
-  off_t file_size = AAsset_getLength(asset);
-  out_file_text_string->resize(file_size);
-  int ret = AAsset_read(asset, &out_file_text_string->front(), file_size);
+    off_t file_size = AAsset_getLength(asset);
+    out_file_text_string->resize(file_size);
+    int ret = AAsset_read(asset, &out_file_text_string->front(), file_size);
 
-  if (ret <= 0) {
-    LOGE("Failed to open file: %s", file_name);
+    if (ret <= 0) {
+        LOGE("Failed to open file: %s", file_name);
+        AAsset_close(asset);
+        return false;
+    }
+
     AAsset_close(asset);
-    return false;
-  }
-
-  AAsset_close(asset);
-  return true;
+    return true;
 }
 
 bool LoadPngFromAssetManager(int target, const std::string& path) {
-  JNIEnv* env = GetJniEnv();
 
-  // Put all the JNI values in a structure that is statically initalized on the
-  // first call to this method.  This makes it thread safe in the unlikely case
-  // of multiple threads calling this method.
-  static struct JNIData {
-    jclass helper_class;
-    jmethodID load_image_method;
-    jmethodID load_texture_method;
-  } jniIds = [env]() -> JNIData {
-    constexpr char kHelperClassName[] =
-        "com/google/ar/core/examples/c/helloar/JniInterface";
-    constexpr char kLoadImageMethodName[] = "loadImage";
-    constexpr char kLoadImageMethodSignature[] =
-        "(Ljava/lang/String;)Landroid/graphics/Bitmap;";
-    constexpr char kLoadTextureMethodName[] = "loadTexture";
-    constexpr char kLoadTextureMethodSignature[] =
-        "(ILandroid/graphics/Bitmap;)V";
-    jclass helper_class = FindClass(kHelperClassName);
-    if (helper_class) {
-      helper_class = static_cast<jclass>(env->NewGlobalRef(helper_class));
-      jmethodID load_image_method = env->GetStaticMethodID(
-          helper_class, kLoadImageMethodName, kLoadImageMethodSignature);
-      jmethodID load_texture_method = env->GetStaticMethodID(
-          helper_class, kLoadTextureMethodName, kLoadTextureMethodSignature);
-      return {helper_class, load_image_method, load_texture_method};
+    JNIEnv* env = GetJniEnv();
+
+    LOGI("ANDY - LOAD PNG FROM ASSET MANAGER ");
+    // Put all the JNI values in a structure that is statically initalized on the
+    // first call to this method.  This makes it thread safe in the unlikely case
+    // of multiple threads calling this method.
+    static struct JNIData {
+        jclass helper_class;
+        jmethodID load_image_method;
+        jmethodID load_texture_method;
+    } jniIds = [env]() -> JNIData {
+        constexpr char kHelperClassName[] = "com/example/kroth/testing/JniInterfaceOSG";
+        constexpr char kLoadImageMethodName[] = "loadImage";
+        constexpr char kLoadImageMethodSignature[] = "(Ljava/lang/String;)Landroid/graphics/Bitmap;";
+        constexpr char kLoadTextureMethodName[] = "loadTexture";
+        constexpr char kLoadTextureMethodSignature[] = "(ILandroid/graphics/Bitmap;)V";
+        jclass helper_class = FindClass(kHelperClassName);
+
+        if (helper_class) {
+            LOGI("=== ANDY: LOAD PNG - found helper class ===");
+            helper_class = static_cast<jclass>(env->NewGlobalRef(helper_class));
+            jmethodID load_image_method =
+                    env->GetStaticMethodID(helper_class, kLoadImageMethodName, kLoadImageMethodSignature);
+            LOGI("=== ANDY: LOAD PNG - loaded image method ===");
+            jmethodID load_texture_method =
+                    env->GetStaticMethodID(helper_class, kLoadTextureMethodName, kLoadTextureMethodSignature);
+            LOGI("=== ANDY: LOAD PNG - loaded texture method ===");
+            return {helper_class, load_image_method, load_texture_method};
+        }
+        LOGE("util::Could not find Java helper class %s", kHelperClassName);
+        return {};
+    }();
+
+    if (!jniIds.helper_class) {
+        return false;
     }
-    LOGE("util::Could not find Java helper class %s",
-         kHelperClassName);
-    return {};
-  }();
 
-  if (!jniIds.helper_class) {
-    return false;
-  }
+    jstring j_path = env->NewStringUTF(path.c_str());
 
-  jstring j_path = env->NewStringUTF(path.c_str());
+    jobject image_obj = env->CallStaticObjectMethod(
+            jniIds.helper_class, jniIds.load_image_method, j_path);
+    LOGI("=== ANDY: LOAD PNG - loaded image ===");
 
-  jobject image_obj = env->CallStaticObjectMethod(
-      jniIds.helper_class, jniIds.load_image_method, j_path);
+    if (j_path) {
+        env->DeleteLocalRef(j_path);
+    }
 
-  if (j_path) {
-    env->DeleteLocalRef(j_path);
-  }
-
-  env->CallStaticVoidMethod(jniIds.helper_class, jniIds.load_texture_method,
-                            target, image_obj);
-  return true;
+    env->CallStaticVoidMethod(jniIds.helper_class, jniIds.load_texture_method,
+                              target, image_obj);
+    LOGI("=== ANDY: LOAD PNG - loaded texture ===");
+    return true;
 }
 
 bool LoadObjFile(const std::string& file_name, AAssetManager* asset_manager,

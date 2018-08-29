@@ -1,8 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.4.1)
 
-# Path to external projects:
-SET(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
-
 # Specify critical zlib build variables.
 # Build and reference OpenSceneGraph.
 SET(DEP_PROJ_DIR "${EXT_PROJ_DIR}/dependencies")

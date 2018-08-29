@@ -37,6 +37,7 @@ public class JniInterfaceOSG {
     public static native void JNIsetDelta(float deltaX, float deltaY, float x, float y);
     public static native void JNIsetMode(int newMode);
     public static native void JNIreset();
+    public static native void JNIswitchView();
 
     public static native boolean JNIhasDetectedPlane();
 

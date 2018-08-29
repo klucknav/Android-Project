@@ -1,46 +1,29 @@
-/*
- * Copyright 2017 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include "ar_application.h"
 
 #include <android/asset_manager.h>
 #include <array>
 
-
 #include "util.h"
 
 
-  namespace {
-  constexpr size_t kMaxNumberOfAndroidsToRender = 20;
-  constexpr int32_t kPlaneColorRgbaSize = 16;
+namespace {
+    constexpr size_t kMaxNumberOfAndroidsToRender = 20;
+    constexpr int32_t kPlaneColorRgbaSize = 16;
 
-  const glm::vec3 kWhite = {255, 255, 255};
+    const glm::vec3 kWhite = {255, 255, 255};
 
-  constexpr std::array<uint32_t, kPlaneColorRgbaSize> kPlaneColorRgba = {
+    constexpr std::array<uint32_t, kPlaneColorRgbaSize> kPlaneColorRgba = {
       {0xFFFFFFFF, 0xF44336FF, 0xE91E63FF, 0x9C27B0FF, 0x673AB7FF, 0x3F51B5FF,
        0x2196F3FF, 0x03A9F4FF, 0x00BCD4FF, 0x009688FF, 0x4CAF50FF, 0x8BC34AFF,
        0xCDDC39FF, 0xFFEB3BFF, 0xFFC107FF, 0xFF9800FF}};
 
-  inline glm::vec3 GetRandomPlaneColor() {
+    inline glm::vec3 GetRandomPlaneColor() {
     const int32_t colorRgba = kPlaneColorRgba[std::rand() % kPlaneColorRgbaSize];
     return glm::vec3(((colorRgba >> 24) & 0xff) / 255.0f,
                      ((colorRgba >> 16) & 0xff) / 255.0f,
                      ((colorRgba >> 8) & 0xff) / 255.0f);
     }
-  }  // namespace
+}  // namespace
 
 ArApplication::ArApplication(AAssetManager* asset_manager) : asset_manager_(asset_manager) {}
 
@@ -52,20 +35,18 @@ ArApplication::~ArApplication() {
 }
 
 void ArApplication::OnPause() {
-    LOGI("OnPause()");
+
+    LOGI("AR-application: OnPause()");
     if (_ar_session != nullptr) {
         ArSession_pause(_ar_session);
     }
 }
 
 void ArApplication::OnResume(void* env, void* context, void* activity) {
-    LOGI("OnResume()");
 
+    LOGI("AR-application: OnResume()");
     if (_ar_session == nullptr) {
         ArInstallStatus install_status;
-        // If install was not yet requested, that means that we are resuming the
-        // activity first time because of explicit user interaction (such as
-        // launching the application)
         bool user_requested_install = !install_requested_;
 
         CHECK(ArCoreApk_requestInstall(env, activity, user_requested_install, &install_status) == AR_SUCCESS);
@@ -84,15 +65,15 @@ void ArApplication::OnResume(void* env, void* context, void* activity) {
         ArFrame_create(_ar_session, &_ar_frame);
         CHECK(_ar_frame);
 
-        ArSession_setDisplayGeometry(_ar_session, display_rotation_, width_, height_);
+        ArSession_setDisplayGeometry(_ar_session, _displayRotation, _width, _height);
     }
     const ArStatus status = ArSession_resume(_ar_session);
     CHECK(status == AR_SUCCESS);
 }
 
 void ArApplication::OnSurfaceCreated() {
-    LOGI("OnSurfaceCreated()");
 
+    LOGI("AR-application: OnSurfaceCreated()");
     background_renderer_.InitializeGlContent(asset_manager_);
     //point_cloud_renderer_.InitializeGlContent(asset_manager_);
     //andy_renderer_.InitializeGlContent(asset_manager_, "models/andy.obj", "models/andy.png");
@@ -101,17 +82,18 @@ void ArApplication::OnSurfaceCreated() {
 
 void ArApplication::OnDisplayGeometryChanged(int display_rotation, int width, int height) {
 
-    LOGI("OnSurfaceChanged(%d, %d)", width, height);
+    LOGI("AR-application: OnSurfaceChanged(%d, %d)", width, height);
 
     //glViewport(0, 0, width, height);  // removed - taken care of by osg_application (setUpViewerAsEmbeddedInWindow)
-    display_rotation_ = display_rotation;
-    width_ = width;
-    height_ = height;
+    _displayRotation = display_rotation;
+    _width= width;
+    _height = height;
     if (_ar_session != nullptr) {
         ArSession_setDisplayGeometry(_ar_session, display_rotation, width, height);
     }
 }
 
+// PREVIOUS VERSION
 void ArApplication::OnDrawFrame() {
 
     // Render the scene.
@@ -254,7 +236,7 @@ void ArApplication::OnDrawFrame() {
         ArPointCloud_release(ar_point_cloud);
     }*/
 }
-
+// OSG-VERISON
 void ArApplication::onDrawFrame(GLuint textureId) {
     if(_ar_session == nullptr)
         return;
@@ -267,8 +249,6 @@ void ArApplication::onDrawFrame(GLuint textureId) {
     ArCamera* camera;
     ArFrame_acquireCamera(_ar_session, _ar_frame, &camera);
 
-    glm::mat4 view_mat;
-    glm::mat4 projection_mat;
     ArCamera_getViewMatrix(_ar_session, camera, glm::value_ptr(view_mat));
     ArCamera_getProjectionMatrix(_ar_session,camera, 0.1f, 100.0f, glm::value_ptr(projection_mat));
 
@@ -278,7 +258,6 @@ void ArApplication::onDrawFrame(GLuint textureId) {
     float camera_pose_raw[7] = {0.f};
     ArPose_getPoseRaw(_ar_session, camera_pose, camera_pose_raw);
 
-    ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_ar_session, camera, &camera_tracking_state);
     ArCamera_release(camera);
 }
@@ -468,6 +447,7 @@ void ArApplication::SetColor(float r, float g, float b, float a, float* color4f)
     *(color4f + 3) = a;
 }
 
+// TO SEND AR-CORE INFORMATION TO OSG
 float *ArApplication::updateBackgroundRender() {
     // UVs of the quad vertices (S, T)
     const GLfloat uvs[] = { 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,};
@@ -478,6 +458,34 @@ float *ArApplication::updateBackgroundRender() {
         return transformed_camera_uvs;
     }
     return nullptr;
+}
+bool ArApplication::renderPointClouds(pointCloudDrawable *drawable){
+
+    // get the point cloud
+    ArPointCloud *pointCloud;
+    ArStatus  pointCloudStatus = ArFrame_acquirePointCloud(_ar_session, _ar_frame, &pointCloud);
+    if(pointCloudStatus != AR_SUCCESS){
+        return false;
+    }
+
+    // get the number of points in the point cloud
+    int32_t numPoints = 0;
+    ArPointCloud_getNumberOfPoints(_ar_session, pointCloud, &numPoints);
+    if(numPoints <= 0){
+        return false;
+    }
+
+    // get the point cloud data
+    const float* pointCloudData;
+    ArPointCloud_getData(_ar_session, pointCloud, &pointCloudData);
+
+    // update the point cloud data in the drawable object so will be ready to draw
+    drawable->updateVertices(pointCloudData, numPoints);
+    drawable->updateARMatrix(projection_mat*view_mat);
+
+//    LOGI("AR_APP: UPDATED THE POINT CLOUD INFORMATION");
+    ArPointCloud_release(pointCloud);
+    return true;
 }
 
 void ArApplication::estimateLight() {
@@ -493,5 +501,53 @@ void ArApplication::estimateLight() {
     }
 
     ArLightEstimate_destroy(ar_light_estimate);
+}
+
+PlaneParams ArApplication::detectPlanes(){
+    int detectedPlaneNum;
+    ArTrackableList* plane_list = nullptr;
+    ArTrackableList_create(_ar_session, & plane_list);
+    CHECK(plane_list!= nullptr);
+    ArSession_getAllTrackables(_ar_session, AR_TRACKABLE_PLANE,plane_list);
+    ArTrackableList_getSize(_ar_session, plane_list, &detectedPlaneNum);
+
+    for(int i = 0; i < detectedPlaneNum; i++){
+        ArTrackable * ar_trackable = nullptr;
+        ArTrackableList_acquireItem(_ar_session, plane_list, i, &ar_trackable);
+
+        //cast down trackable to plane
+        ArPlane * ar_plane = ArAsPlane(ar_trackable);
+
+        //check the trackingstate, if not tracking, skip rendering
+        ArTrackingState trackingState;
+        ArTrackable_getTrackingState(_ar_session, ar_trackable, &trackingState);
+        if(trackingState != AR_TRACKING_STATE_TRACKING)
+            continue;
+
+        //check if the plane contain the subsume plane, if so, skip to avoid overlapping
+        ArPlane * subsume_plane;
+        ArPlane_acquireSubsumedBy(_ar_session, ar_plane, &subsume_plane);
+        if(subsume_plane != nullptr)
+            continue;
+        glm::vec3 plane_color;
+
+        //Find if the plane already in the dict with specific color. Or add into dict
+        auto iter = _planes.plane_color_map.find(ar_plane);
+        if(iter!=_planes.plane_color_map.end()){
+            plane_color = iter->second;
+            ArTrackable_release(ar_trackable);
+        }else{
+            if(_planes.this_is_first_plane){
+                _planes.this_is_first_plane = false;
+                plane_color = glm::vec3(255, 255, 255);
+            }else{
+                plane_color = GetRandomPlaneColor();
+            }
+            _planes.plane_color_map.insert({ar_plane, plane_color});
+        }
+    }
+    ArTrackableList_destroy(plane_list);
+    plane_list = nullptr;
+    return _planes;
 }
 

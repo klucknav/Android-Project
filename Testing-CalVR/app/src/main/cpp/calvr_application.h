@@ -9,7 +9,7 @@
 #include <cvrKernel/CVRViewer.h>
 
 #include "SpatialViz.h"
-#include "../../../../../calvr_plugins/general/MenuBasics/MenuBasics.h"
+#include "../../../../../../calvr_plugins/general/MenuBasics/MenuBasics.h"
 
 class calvr_application{
 private:

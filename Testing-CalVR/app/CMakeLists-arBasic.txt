@@ -9,7 +9,11 @@ add_library(arBasic
             src/main/cpp/jni_interface_osg.cpp
             src/main/cpp/osg_application.cpp
             src/main/cpp/glDrawable.cpp
-            src/main/cpp/osg_background.cpp)
+            src/main/cpp/backgroundDrawable.cpp
+            src/main/cpp/pointCloudDrawable.cpp
+            src/main/cpp/planeDrawable.cpp
+            src/main/cpp/osg_objRenderer.cpp
+            )
 
 
 target_include_directories(arBasic PRIVATE
