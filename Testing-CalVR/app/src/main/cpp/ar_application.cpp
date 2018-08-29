@@ -135,8 +135,8 @@ void ArApplication::OnDrawFrame() {
     ArCamera* ar_camera;
     ArFrame_acquireCamera(_ar_session, _ar_frame, &ar_camera);
 
-    glm::mat4 view_mat;
-    glm::mat4 projection_mat;
+    view_mat;
+    projection_mat;
     ArCamera_getViewMatrix(_ar_session, ar_camera, glm::value_ptr(view_mat));
     ArCamera_getProjectionMatrix(_ar_session, ar_camera, /*near=*/0.1f, /*far=*/100.f, glm::value_ptr(projection_mat));
 

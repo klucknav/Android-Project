@@ -114,6 +114,11 @@ void osgApplication::onResume(void *env, void *context, void *activity) {
 void osgApplication::onDrawFrame() {
     _arCoreApp->onDrawFrame(_background->GetTextureId());
 
+    // update the camera
+    glm::mat4 rotatemat = glm::rotate(glm::mat4(), glm::radians(-90.0f), glm::vec3(1.0,0,0))* _arCoreApp->view_mat;
+    osg::Matrixd* mat = new osg::Matrixd(glm::value_ptr(rotatemat));
+    _viewer->getCamera()->setViewMatrix(*mat);
+
     // draw the background
     float* transUV = _arCoreApp->updateBackgroundRender();
     if (transUV != nullptr){

@@ -64,6 +64,9 @@ public:
     // below are added for osg integration
     float* updateBackgroundRender();    // called when osg draws the background
     void estimateLight();               // called when osg draws planes
+
+    glm::mat4 view_mat;
+    glm::mat4 projection_mat;
     float transformed_camera_uvs[8];
 
 private:
