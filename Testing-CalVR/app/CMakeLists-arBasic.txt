@@ -29,28 +29,37 @@ target_link_libraries(  arBasic
                         GLESv2
                         GLESv3
                         arcore
-                        mxml
+                        #mxml
 
                         #need for osg
                         osgPresentation               # For osg, the dependency relations:
-                        osgWidget                     # osgPresentation: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgPresentation.png
-                        osgUI                         # osgdb_osg: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_osg.png
-                        osgManipulator                # osgdb_serializers_osg:
-                        osgAnimation                  # https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_serializers_osg.png
-                        osgViewer                     # (These three are the "roots" of the trees)
-                        osgVolume                     #
-                        osgSim                        #
-                        osgShadow                     #
-                        osgTerrain                    #
-                        osgParticle                   #
-                        osgFX                         #
-                        z                             #
-                        osgText                       #
-                        osgGA                         #
-                        osgdb_osg                     #
-                        osgdb_serializers_osg         #
-                        osgDB                         #
-                        osgUtil                       #
-                        osg
-                        OpenThreads
+                            osgWidget                     # osgPresentation: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgPresentation.png
+                            osgUI                         # osgdb_osg: https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_osg.png
+                            osgManipulator                # osgdb_serializers_osg:
+                            osgAnimation                  # https://github.com/WeichenLiu/CalVR_for_Android/blob/master/Note/osgdb_serializers_osg.png
+                            osgViewer                     # (These three are the "roots" of the trees)
+                            osgVolume                     #
+                            osgSim                        #
+                            osgShadow                     #
+                            osgTerrain                    #
+                            osgParticle                   #
+                            osgFX                         #
+                            z                             #
+                            osgText                       #
+                            osgGA                         #
+                            osgdb_tiff
+                            osgdb_rgb                     # uncommenting OK
+                            osgdb_png
+                            osgdb_jpeg
+                            osgdb_osg                     #
+                            osgdb_serializers_osg         #
+                            osgDB                         #
+                            osgUtil                       #
+                            osg                           #
+                            OpenThreads                   #
+
+                            tiff
+                            png
+                            jpeg
+                            #zlib
                         )

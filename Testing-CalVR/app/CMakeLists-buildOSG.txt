@@ -1,6 +1,6 @@
 ## build OSG ##
 #set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
-message("--- HERE: EXT_PROJ_DIR = ${EXT_PROJ_DIR}")
+message("--- HERE - buildOSG: EXT_PROJ_DIR = ${EXT_PROJ_DIR}")
 set(OSG_SOURCE_DIR "${EXT_PROJ_DIR}/OpenSceneGraph-3.6.2")
 set(OSG_BUILD_DIR "${EXT_PROJ_DIR}/OpenSceneGraph-3.6.2/build/${ANDROID_ABI}")
 
