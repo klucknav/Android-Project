@@ -25,11 +25,18 @@ extern "C"{
 
     // Mouse events
     JNI_METHOD(void, JNIpressMouse)(JNIEnv *env, jclass type, jboolean down, jfloat x, jfloat y);
-    JNI_METHOD(void, JNImoveMouse)(JNIEnv *env, jclass type, jfloat x, jfloat y);
+    JNI_METHOD(void, JNImoveMouse)(JNIEnv *env, jclass type, jfloat deltaX, jfloat deltaY, jfloat x, jfloat y);
     JNI_METHOD(void, JNIsetDelta)(JNIEnv *env, jclass type, jfloat deltaX, jfloat deltaY);
-    JNI_METHOD(void, testing)(JNIEnv *env, jclass type);
+
+    JNI_METHOD(void, JNIsetMode)(JNIEnv *env, jclass type, jint newMode);
+    JNI_METHOD(void, JNIreset)(JNIEnv *env, jclass type);
+
+    // to open and close the menu
     JNI_METHOD(void, doubleTap)(JNIEnv *env, jclass type, jfloat x, jfloat y);
     JNI_METHOD(void, longPress)(JNIEnv *env, jclass type, jfloat x, jfloat y);
+
+    // to switch between moving the OSG object and the CalVR screen
+    JNI_METHOD(void, JNIoneFingerDoubleTap)(JNIEnv *env, jclass type);
 
     //access JNI env on the current thread
     JNIEnv * GetJniEnv();

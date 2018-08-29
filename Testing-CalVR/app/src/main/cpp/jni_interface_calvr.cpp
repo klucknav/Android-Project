@@ -62,20 +62,32 @@ JNI_METHOD(void, JNIdrawFrame)(JNIEnv *env, jclass type){
 JNI_METHOD(void, JNIpressMouse)(JNIEnv *env, jclass type, jboolean down, jfloat x, jfloat y) {
     controllerNative(calvrAppPtr)->pressMouse(down, x, y);
 }
-JNI_METHOD(void, JNImoveMouse)(JNIEnv *env, jclass type, jfloat x, jfloat y){
-    controllerNative(calvrAppPtr)->moveMouse(x, y);
+JNI_METHOD(void, JNImoveMouse)(JNIEnv *env, jclass type, jfloat deltaX, jfloat deltaY, jfloat x, jfloat y){
+//    LOGI("JNI_interface: x = %f, y = %f", x, y);
+    controllerNative(calvrAppPtr)->moveMouse(deltaX, deltaY, x, y);
 }
 JNI_METHOD(void, JNIsetDelta)(JNIEnv *env, jclass type, jfloat deltaX, jfloat deltaY){
     controllerNative(calvrAppPtr)->setDelta(deltaX, deltaY);
 }
-JNI_METHOD(void, testing)(JNIEnv *env, jclass type){
-    controllerNative(calvrAppPtr)->testing();
+
+JNI_METHOD(void, JNIsetMode)(JNIEnv *env, jclass type, jint newMode) {
+    controllerNative(calvrAppPtr)->setMode(newMode);
 }
+JNI_METHOD(void, JNIreset)(JNIEnv *env, jclass type) {
+    controllerNative(calvrAppPtr)->reset();
+}
+
+// to open and close the menu
 JNI_METHOD(void, doubleTap)(JNIEnv *env, jclass type, jfloat x, jfloat y){
     controllerNative(calvrAppPtr)->doubleTap(x, y);
 }
 JNI_METHOD(void, longPress)(JNIEnv *env, jclass type, jfloat x, jfloat y) {
     controllerNative(calvrAppPtr)->longPress(x, y);
+}
+
+// to switch between moving the OSG object and the CalVR screen
+JNI_METHOD(void, JNIoneFingerDoubleTap)(JNIEnv *env, jclass type){
+    controllerNative(calvrAppPtr)->switchMoveMode();
 }
 
 

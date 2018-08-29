@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Rotate" android:id="@+id/moveWorld"/>
+    <item android:title="Scale" android:id="@+id/scale"/>
+    <item android:title="Drive" android:id="@+id/drive"/>
+    <item android:title="Fly" android:id="@+id/fly"/>
+    <item android:title="Reset" android:id="@+id/reset"/>
+
+</menu>

@@ -25,20 +25,24 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     LOGI("========== in CalVR app constructor =========");
     _root = new Group();
 
+    // for moving the osg-object
     _sphereTrans = new PositionAttitudeTransform();         // ADDED
     _cubeTrans = new PositionAttitudeTransform();           // ADDED
+    _currTrans = _cubeTrans;
 
+    // CVR
+    _viewer = new cvr::CVRViewer();
+    _viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
     _menuManager = cvr::MenuManager::instance();
     _scene = cvr::SceneManager::instance();
     _config = cvr::ConfigManager::instance();
-    _viewer = new cvr::CVRViewer();
-    _viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+    _interactionManager = cvr::InteractionManager::instance();
+    _comController = cvr::ComController::instance();
+    _trackingManager = cvr::TrackingManager::instance();
+    _navigation = cvr::Navigation::instance();
 
     _menuBasics = new MenuBasics();
     _spatialViz = new SpatialViz();
-
-    _interactionManager = cvr::InteractionManager::instance();
-
 
     initialize_camera();
     LOGI("========== finished CalVR app constructor =========");
@@ -59,14 +63,13 @@ void calvr_application::initialize_camera() {
 }
 
 void calvr_application::createDebugOSGsphere(osg::Vec3 pos) {
+
     osg::ref_ptr<osg::ShapeDrawable> shape = new osg::ShapeDrawable;
-    shape->setShape(new osg::Sphere(pos, 0.2f));
+    shape->setShape(new osg::Sphere(pos, 0.1f));
     shape->setColor(osg::Vec4f(0.3, 0.8, 0.8, 1.0));
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
     Program * program = osg_utils::createShaderProgram("shaders/lightingOSG.vert","shaders/lightingOSG.frag",_asset_manager);
-    //Program * program = osg_utils::createShaderProgram("shaders/basicOSG.vert","shaders/basicOSG.frag",_asset_manager);
-
     osg::StateSet * stateSet = shape->getOrCreateStateSet();
     stateSet->setAttributeAndModes(program);
     stateSet->addUniform( new osg::Uniform("lightDiffuse", osg::Vec4(0.5f, 0.5f, 0.5f, 1.0f)) );
@@ -76,89 +79,147 @@ void calvr_application::createDebugOSGsphere(osg::Vec3 pos) {
 
     geode->addDrawable(shape.get());
     //_root->addChild(geode);       // original
-    _root->addChild(_sphereTrans.get());  // ADDED
     _sphereTrans->addChild(geode);  // ADDED
 }
 
 void calvr_application::createDebugOSGcube(osg::Vec3 pos) {
-    osg::ref_ptr<osg::ShapeDrawable> shape = new osg::ShapeDrawable;
-    shape->setShape(new osg::Box(pos, 0.2f));
-    shape->setColor(osg::Vec4f(0.3, 0.8, 0.8, 1.0));
+    osg::ref_ptr<osg::ShapeDrawable> shapeDrawable = new osg::ShapeDrawable;
+    shapeDrawable->setShape(new osg::Box(pos, 0.2f));
+    shapeDrawable->setColor(osg::Vec4f(0.3, 0.8, 0.8, 1.0));
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
     Program * program = osg_utils::createShaderProgram("shaders/lightingOSG.vert","shaders/lightingOSG.frag",_asset_manager);
-    //Program * program = osg_utils::createShaderProgram("shaders/basicOSG.vert","shaders/basicOSG.frag",_asset_manager);
-
-    osg::StateSet * stateSet = shape->getOrCreateStateSet();
+    osg::StateSet * stateSet = shapeDrawable->getOrCreateStateSet();
     stateSet->setAttributeAndModes(program);
     stateSet->addUniform( new osg::Uniform("lightDiffuse", osg::Vec4(0.5f, 0.5f, 0.5f, 1.0f)) );
     stateSet->addUniform( new osg::Uniform("lightSpecular", osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f)) );
     stateSet->addUniform( new osg::Uniform("shininess", 16.0f) );
     stateSet->addUniform( new osg::Uniform("lightPosition", lightDir));
 
-    geode->addDrawable(shape.get());
+    osg::BoundingBox boundingBox = shapeDrawable.get()->getBoundingBox();
+    float xMin = boundingBox.xMin();    float xMax = boundingBox.xMax();
+    float yMin = boundingBox.yMin();    float yMax = boundingBox.yMax();
+    float zMin = boundingBox.zMin();    float zMax = boundingBox.zMax();
+    LOGI("bounding box: x = (%f, %f), y = (%f, %f), z = (%f, %f)", xMin, xMax, yMin, yMax, zMin, zMax);
+
+    // create a scene object for the cube
+    cvr::SceneObject *cubeSO = new cvr::SceneObject("root", true, false, true, true, true);
+    cvr::PluginHelper::registerSceneObject(cubeSO, "CalVR_object");
+    cubeSO->addChild(_root);
+
+    LOGI("SceneObj: attaching to Scene");
+//    cubeSO->attachToScene();                // fails when uncommented: fatal signal 11 (sigsegv) code 1
+    LOGI("SceneObj: adding to Menu");
+    cubeSO->addMoveMenuItem();
+    LOGI("SceneObj: added MoveMenuItem");
+    cubeSO->addNavigationMenuItem();
+    LOGI("SceneObj: add NavMenuItem");
+
+    // testing the bounding box
+    cubeSO->setBoundsCalcMode(cvr::SceneObject::BoundsCalcMode::MANUAL);
+    cubeSO->setBoundingBox(boundingBox);        // needs to be in MANUAL mode to work
+    osg::BoundingBox SO_bb = cubeSO->getOrComputeBoundingBox();
+    float xMin1 = SO_bb.xMin();    float xMax1 = SO_bb.xMax();
+    float yMin1 = SO_bb.yMin();    float yMax1 = SO_bb.yMax();
+    float zMin1 = SO_bb.zMin();    float zMax1 = SO_bb.zMax();
+    LOGI("SO_bbox: x = (%f, %f), y = (%f, %f), z = (%f, %f)", xMin1, xMax1, yMin1, yMax1, zMin1, zMax1);
+
+    geode->addDrawable(shapeDrawable.get());
     //_root->addChild(geode);       // original
-    _root->addChild(_cubeTrans.get());  // ADDED
-    _cubeTrans->addChild(geode);  // ADDED
+    _cubeTrans->addChild(geode);    // ADDED
 }
 
 
 void calvr_application::setupDefaultEnvironment(const char *root_path) {
     std::string homeDir = std::string(root_path) + "/";
 
+    setenv("CALVR_HOST_NAME", "calvrHost");
     setenv("CALVR_HOME", homeDir);
-    setenv("CALVR_CONFIG_DIR", homeDir+"config/");
-    setenv("CALVR_RESOURCE_DIR", homeDir+"resources/");
-    setenv("CALVR_CONFIG_FILE", homeDir+"config/config.xml");
+    setenv("CALVR_ICON_DIR", homeDir + "icons/");
+    setenv("CALVR_CONFIG_DIR", homeDir + "config/");
+    setenv("CALVR_RESOURCE_DIR", homeDir + "resources/");
+    setenv("CALVR_CONFIG_FILE", homeDir + "config/config.xml");
+
+    LOGI("--- default environment setUp Complete ---");
 }
 
 void calvr_application::onCreate(const char *calvr_path) {
 
+    LOGI("--- onCreate ---");
+    // set the environment paths
     setupDefaultEnvironment(calvr_path);
-    //createDebugOSGsphere(osg::Vec3(.0f, 0.0f, .0f));
+
+    _root->addChild(_sphereTrans.get());    // ADDED
+    _root->addChild(_cubeTrans.get());      // ADDED
+
+    //createDebugOSGsphere(osg::Vec3(-0.51f, 0.0f, 2.675f));
     createDebugOSGcube(osg::Vec3(0,0,0));
 
     std::string fontfile = getenv("CALVR_RESOURCE_DIR");
     fontfile = fontfile + "arial.ttf";
 
+    // Check initializations
+    if(!_config->init())
+        LOGE("========== CONFIG INITIALIZATION FAIL ========");
+    else
+        LOGI("--- CONFIG INITIALIZED ---");
+    if(!_comController->init())
+        LOGE("========== CONTROLLER INITIALIZATION FAIL ========");
+    if(!_trackingManager->init())
+        LOGE("========== TRACKING INITIALIZATION FAIL ========");
+    if(!_interactionManager->init())
+        LOGE("========== INTERACTION MANAGER INIT FAIL ==========");
+    else
+        LOGI("--- INTERACTION MANAGER INITIALIZED ---");
+    if(!_navigation->init())
+        LOGE("========== NAVIGATION INIT FAIL ==========");
     if(!_scene->init())
-        LOGE("==========SCENE INITIALIZATION FAIL=========");
+        LOGE("========== SCENE INITIALIZATION FAIL =========");
+    else
+        LOGI("--- SCENE INITIALIZED ---");
 
     _root->addChild(_scene->getSceneRoot());
-
-    if(!_config->init())
-        LOGE("==========CONFIG INITIALIZATION FAIL========");
-
     if(!_menuManager->init())
-        LOGE("==========MENU INITIALIZATION FAIL=========");
+        LOGE("========== MENU INITIALIZATION FAIL =========");
+    else
+        LOGI("--- MENU INITIALIZED ---");
 
     if(!_menuBasics->init())
         LOGE("MENU BASICS");
-
     if(!_spatialViz->init())
         LOGE("SPATIALVIZ INITIALIZATION FAIL");
 
-    if(!_interactionManager->init())
-        LOGE("========== INTERACTION MANAGER INIT FAIL ==========");
-
     _viewer->setSceneData(_root.get());
+    LOGI("=== ON CREATE COMPLETE ===");
 }
 
 void calvr_application::onDrawFrame(){
-    if(test) {
-        setDelta(currAngle, 0);
-    }
+
+    _viewer->frameStart();
+    _viewer->advance(USE_REFERENCE_TIME);
+
+    _trackingManager->update();
+    _scene->update();
     _menuManager->update();         // to make sure the menu options gets drawn
     _interactionManager->update();  // to process the tap events
+
+    _navigation->update();
+    _scene->postEventUpdate();
     _viewer->frame();
+
+    if(_comController->getIsSyncError())
+        LOGE("Sync error");
 }
 
 void calvr_application::onViewChanged(int rotation, int width, int height){
+
     _viewer->setUpViewerAsEmbeddedInWindow(0,0,width,height);
     LOGI("===== WIDTH = %d, HEIGHT = %d =====", width, height);
     _screenWidth = width;
     _screenHeight = height;
-    ratio = _screenHeight/540;  // 540 is CalVR height
+//    ratio = _screenHeight/540;          // 540 is CalVR height
+    ratio = _screenHeight/1610;         // 1610 is CalVR height
+    objRatio = _screenHeight/5.35;      // for osgObj location
 }
 
 void calvr_application::onResourceLoaded(const char *path) {
@@ -173,22 +234,68 @@ void calvr_application::onResourceLoaded(const char *path) {
 void calvr_application::pressMouse(bool down, float x, float y) {
 
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
-    interactionEvent->setButton(0);//primary button
-    osg::Matrix m;
-    m.makeTranslate(screenToWorld(x,y));
-    interactionEvent->setTransform(m);
-
     if (down) {
         interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOWN);
     }
     else {
         interactionEvent->setInteraction(cvr::Interaction::BUTTON_UP);
+//        osg::Vec3 pos = screenToWorldObj(x, y);
+//        createDebugOSGsphere(pos);
+//        LOGI("making new sphere at (x, y) = (%f, %f)", pos[0] , pos[2]);
     }
+
+    interactionEvent->setButton(0);//primary button
+    interactionEvent->setHand(0);
+    interactionEvent->setX(x);
+    interactionEvent->setY(y);
+    osg::Matrix m;
+    m.makeTranslate(screenToWorld(x,y));
+    interactionEvent->setTransform(m);
+    _trackingManager->setTouchEventMatrix(m);
     _interactionManager->addEvent(interactionEvent);
 }
 
-void calvr_application::moveMouse(float x, float y) {
-    //setDelta(x, y);       // cube disappeared when added this call
+void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y) {
+
+    if(moveOBJ) {
+        LOGI("calvr_app - moveMouse: x = %f, y = %f", x, y);
+        LOGI("calvr_app - moveMouse: Dx = %f, Dy = %f", delta_x, delta_y);
+
+        if (currMode == MOVE_WORLD) {
+            totalRotation = totalRotation * osg::Quat(delta_y, xAxis) * osg::Quat(delta_x, zAxis);
+            _currTrans->setAttitude(totalRotation);
+        }
+        if (currMode == SCALE) {
+            osg::Vec3 prevScale = _currTrans->getScale();
+            float deltaReduced = delta_y;
+            osg::Vec3 currScale = osg::Vec3(deltaReduced, deltaReduced, deltaReduced);
+
+            // make sure the next scale is POS/doesn't get too small/doesn't get too large
+            osg::Vec3 nextScale = prevScale - currScale;
+            if (nextScale[0] < 0.01)
+                return;
+            if (nextScale[0] > 10)
+                return;
+
+            // set the new scale
+            _currTrans->setScale(prevScale - currScale);
+        }
+
+        if (currMode == DRIVE) {
+            osg::Vec3 prevPos = _currTrans->getPosition();
+            LOGI("calvr_app - moveMouse: prevPos: x = %f, y = %f, z = %f", prevPos[0], prevPos[1],
+                 prevPos[3]);
+            osg::Vec3 move = osg::Vec3(delta_x / 2.5f, 0, 0);
+            LOGI("calvr_app - moveMouse: move: x = %f, y = %f, z = %f", move[0], move[1], move[3]);
+            _currTrans->setPosition(prevPos + move);
+        }
+
+        if (currMode == FLY) {
+            osg::Vec3 prevPos = _currTrans->getPosition();
+            osg::Vec3 move = osg::Vec3(delta_x / 2.5f, 0, -delta_y / 2.5f);
+            _currTrans->setPosition(prevPos + move);
+        }
+    }
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     interactionEvent->setButton(0); //primary button
     interactionEvent->setInteraction(cvr::Interaction::BUTTON_DRAG);
@@ -198,22 +305,27 @@ void calvr_application::moveMouse(float x, float y) {
     _interactionManager->addEvent(interactionEvent);
 }
 
+
 void calvr_application::setDelta(float delta_x, float delta_y) {
     totalRotation = totalRotation * osg::Quat(delta_y, xAxis) * osg::Quat(delta_x, zAxis);
     _cubeTrans->setAttitude(totalRotation);
 }
-void calvr_application::testing() {
-    test = !test;
-}
 
+// open and close the menu
 void calvr_application::doubleTap(float x, float y) {
-    // NOTE: MouseInteractionEvent and PointerInteractionEvent both work
+
+    LOGI("calvr_app - doubleTap: x = %f, y = %f", x, y);
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     interactionEvent->setButton(1); //secondary button
+    interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOUBLE_CLICK);
+    interactionEvent->setX(x);
+    interactionEvent->setY(y);
+    interactionEvent->setHand(0);
     osg::Matrix m;
     m.makeTranslate(screenToWorld(x, y));    // menu position
     interactionEvent->setTransform(m);
-    interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOUBLE_CLICK);
+    _trackingManager->setTouchEventMatrix(m);
+
     _interactionManager->addEvent(interactionEvent);
 }
 void calvr_application::longPress(float x, float y){
@@ -226,6 +338,21 @@ void calvr_application::longPress(float x, float y){
     interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOWN);
     _interactionManager->addEvent(interactionEvent);
 }
+
+// move modes
+void calvr_application::switchMoveMode() {
+    moveOBJ = !moveOBJ;
+}
+void calvr_application::setMode(int newMode) {
+    currMode = newMode;
+}
+void calvr_application::reset() {
+    _currTrans->setScale(defaultScale);
+    _currTrans->setPosition(defaultPos);
+    _currTrans->setAttitude(defaultRot);
+}
+
+// helper functions
 osg::Vec3f calvr_application::screenToWorld(float x, float y) {
 //    LOGI("----- ANDROID: X = %f, Y = %f -----", x, y);
 
@@ -233,5 +360,10 @@ osg::Vec3f calvr_application::screenToWorld(float x, float y) {
     double newZ = (_screenHeight/2 - y)/ratio;
 
 //    LOGI("----- CalVR: X = %f, Y = %f -----", newX, newZ);
+    return osg::Vec3f(newX, 0, newZ);
+}
+osg::Vec3 calvr_application::screenToWorldObj(float x, float y){
+    double newX = (x-_screenWidth/2.0)/objRatio;
+    double newZ = (_screenHeight/2 - y)/objRatio;
     return osg::Vec3f(newX, 0, newZ);
 }

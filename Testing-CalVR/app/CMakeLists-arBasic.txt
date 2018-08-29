@@ -29,7 +29,7 @@ target_link_libraries(  arBasic
                         GLESv2
                         GLESv3
                         arcore
-                        mxml    # ADDED
+                        mxml
 
                         #need for osg
                         osgPresentation               # For osg, the dependency relations:

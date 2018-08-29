@@ -4,7 +4,11 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -23,7 +27,6 @@ public class CalVR_Activity extends AppCompatActivity {
     private GLSurfaceView surfaceView;
     final static private String calvr_folder = "calvrAssets";
     String calvr_dest = null;
-
 
     // gesture detection
     private TextView message, sub_message;
@@ -49,6 +52,11 @@ public class CalVR_Activity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).setTitle("Adding CalVR");
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        // for touch events
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        mDensity = displayMetrics.density;
 
         JniInterfaceCalVR.assetManager = getAssets();
         copyFromAssets();
@@ -82,7 +90,6 @@ public class CalVR_Activity extends AppCompatActivity {
             Log.e(TAG, "copyFromAssets: Failed to copy from asset folder");
         }
     }
-
     private void setUpMultiGesture(){
         multiFingerTapDetector = new MultiFingerTapDetector() {
             @Override
@@ -101,24 +108,14 @@ public class CalVR_Activity extends AppCompatActivity {
                 float x = event.getX();
                 float y = event.getY();
 
-                JniInterfaceCalVR.JNImoveMouse(x, y);
-                sub_message.setText("called JNImoveMouse");
-                /*if (currMode == FLY) {
-                    JniInterfaceCalVR.JNImoveMouse(x, y);
-                    sub_message.setText("called JNImoveMouse");
-                }
-                if (currMode == DRIVE) {
-                    JniInterfaceCalVR.JNImoveMouse(x, mInitY);
-                    sub_message.setText("called JNImoveMouse");
-                }
-                else {  // MOVE_WORLD and SCALE
-                    // for rotation and scale
-                    float deltaX = (x - mPrevX) / mDensity / 50f;
-                    float deltaY = (y - mPrevY) / mDensity / 50f;
+                // for rotation and scale
+                float deltaX = (x - mPrevX) / mDensity / 50f;
+                float deltaY = (y - mPrevY) / mDensity / 50f;
 
-                    JniInterfaceCalVR.JNIsetDelta(deltaX, 0);
-                    sub_message.setText("called JNIsetDelta");
-                }*/
+                Log.i(TAG, "x = " + x + " y = " + y);
+                Log.i(TAG, "Dx = " + deltaX + " Dy = " + deltaY);
+                JniInterfaceCalVR.JNImoveMouse(deltaX, deltaY, x, y);
+                sub_message.setText("called JNImoveMouse");
                 mPrevX = x;
                 mPrevY = y;
             }
@@ -128,10 +125,6 @@ public class CalVR_Activity extends AppCompatActivity {
                 message.setText("1 finger - Tap");
                 JniInterfaceCalVR.JNIpressMouse(false, event.getX(), event.getY());
                 sub_message.setText("called JNIpressMouse");
-
-                // testing works to start and stop the rotations
-                //JniInterfaceCalVR.testing();
-                //sub_message.setText("testing");
             }
 
             @Override
@@ -156,6 +149,7 @@ public class CalVR_Activity extends AppCompatActivity {
             @Override
             public void onOneFingerDoubleTap() {
                 message.setText("1 finger - Double Tap");
+                JniInterfaceCalVR.JNIoneFingerDoubleTap();
                 sub_message.setText("");
             }
 
@@ -181,6 +175,7 @@ public class CalVR_Activity extends AppCompatActivity {
             @Override
             public void onTwoFingerTripleTap() {
                 message.setText("2 finger - Triple Tap");
+                sub_message.setText("");
             }
 
             @Override
@@ -189,7 +184,6 @@ public class CalVR_Activity extends AppCompatActivity {
                 float avgX = (event.getX() + event.getX(1))/2;
                 float avgY = (event.getY() + event.getY(1))/2;
                 JniInterfaceCalVR.longPress(avgX, avgY);
-//                sub_message.setText(event.getPointerCount() + "");
             }
 
             @Override
@@ -257,4 +251,37 @@ public class CalVR_Activity extends AppCompatActivity {
             }
         }
     }
+
+    // -------------------- MENU OPTIONS -------------------- //
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.calvr_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.moveWorld:
+                JniInterfaceCalVR.JNIsetMode(MOVE_WORLD);
+                return true;
+            case R.id.scale:
+                JniInterfaceCalVR.JNIsetMode(SCALE);
+                return true;
+            case R.id.drive:
+                JniInterfaceCalVR.JNIsetMode(DRIVE);
+                return true;
+            case R.id.fly:
+                JniInterfaceCalVR.JNIsetMode(FLY);
+                return true;
+            case R.id.reset:
+                JniInterfaceCalVR.JNIreset();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // ------------------ END MENU OPTIONS ------------------- //
 }
