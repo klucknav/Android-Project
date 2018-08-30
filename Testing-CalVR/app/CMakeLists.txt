@@ -53,10 +53,25 @@ SET(KERNEL_LIBRARIES
     GLESv2                        #
 )
 
+SET(PHYSX_LIBS
+    LowLevel
+    LowLevelAABB
+    LowLevelCloth
+    LowLevelDynamics
+    LowLevelParticles
+    PhysX3
+    PhysX3CharacterKinematic
+    PhysX3Common
+    PhysX3Cooking
+    PhysX3Extensions
+    PhysX3Vehicle
+    SceneQuery
+    SimulationController
+)
 
 # Path to external projects:
 set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
-
+SET(CALVR_DIR "${EXT_PROJ_DIR}/CalVR")
 
 # build the dependencies (tiff, png, jpeg)
 include(CMakeLists-dependencies.txt)
@@ -73,8 +88,12 @@ include(CMakeLists-staticMXML.txt)     # static
 #include(CMakeLists-buildCalVR.txt)     # build
 include(CMakeLists-staticCalVR.txt)    # static
 
+# statically link the PhysX libraries
+include(CMakeLists-staticPhysX.txt)
+
 # build the plugin(s)
 include(CMakeLists-buildCalVR_plugin.txt)
+
 
 
 

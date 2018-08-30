@@ -48,7 +48,6 @@ namespace osgApp{
         osg::Vec3 cubePos = osg::Vec3(0.0f, 0.0f, 0.0f);
 
         osg::ref_ptr<backgroundDrawable> _background;
-        // TODO: FIX - ADD FILES
         osg::ref_ptr<pointCloudDrawable> _pointCloud;
         std::vector<osg::ref_ptr<planeDrawable>> _planeDrawables;
         osg_objRenderer *_andy;

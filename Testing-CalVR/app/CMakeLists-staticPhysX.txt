@@ -1,0 +1,48 @@
+## static build PhysX ##
+SET(PHYSX_DIR "${EXT_PROJ_DIR}/PhysX")
+message("--- in PhysX CMake ---")
+message("PhysX: EXT_PROJ_DIR = ${EXT_PROJ_DIR}")
+message("PhysX: PHYSX_DIR = ${PHYSX_DIR}")
+
+include_directories(${PHYSX_DIR}/include)
+
+### import the PhysX libraries ###
+add_library(LowLevel STATIC IMPORTED)
+set_target_properties(LowLevel PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevel.a)
+
+add_library(LowLevelAABB STATIC IMPORTED)
+set_target_properties(LowLevelAABB PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelAABB.a)
+
+add_library(LowLevelCloth STATIC IMPORTED)
+set_target_properties(LowLevelCloth PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelCloth.a)
+
+add_library(LowLevelDynamics STATIC IMPORTED)
+set_target_properties(LowLevelDynamics PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelDynamics.a)
+
+add_library(LowLevelParticles STATIC IMPORTED)
+set_target_properties(LowLevelParticles PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelParticles.a)
+
+add_library(PhysX3 STATIC IMPORTED)
+set_target_properties(PhysX3 PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3.a)
+
+add_library(PhysX3CharacterKinematic STATIC IMPORTED)
+set_target_properties(PhysX3CharacterKinematic PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3CharacterKinematic.a)
+
+add_library(PhysX3Common STATIC IMPORTED)
+set_target_properties(PhysX3Common PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Common.a)
+
+add_library(PhysX3Cooking STATIC IMPORTED)
+set_target_properties(PhysX3Cooking PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Cooking.a)
+
+add_library(PhysX3Extensions STATIC IMPORTED)
+set_target_properties(PhysX3Extensions PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Extensions.a)
+
+add_library(PhysX3Vehicle STATIC IMPORTED)
+set_target_properties(PhysX3Vehicle PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Vehicle.a)
+
+add_library(SceneQuery STATIC IMPORTED)
+set_target_properties(SceneQuery PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libSceneQuery.a)
+
+add_library(SimulationController STATIC IMPORTED)
+set_target_properties(SimulationController PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libSimulationController.a)
+### end PhysX library imports ###
