@@ -4,7 +4,7 @@ add_library(simpleCalVR
             src/main/cpp/osg_utils.cpp
             src/main/cpp/jni_interface_calvr.cpp
             src/main/cpp/calvr_application.cpp
-            src/main/cpp/SpatialViz.cpp
+            #src/main/cpp/SpatialViz.cpp
             )
 
 target_include_directories(simpleCalVR PRIVATE
@@ -15,12 +15,12 @@ target_include_directories(simpleCalVR PRIVATE
 target_link_libraries(simpleCalVR
 
                       MenuBasics
-                      # TODO: add SpatialViz
-                      SpatialViz
+                      #SpatialViz
+
                       android
                       mediandk
                       arcore
+
                       ${KERNEL_LIBRARIES}
-                      # TODO: add PHYSX_LIBRARIES
-                      ${PHYSX_LIBS}
+                      #${PHYSX_LIBS}
                       )

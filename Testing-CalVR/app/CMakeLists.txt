@@ -4,6 +4,7 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
+set( GCC_COVERAGE_LINK_FLAGS    "-v")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall")
 set(OSG_CPP_EXCEPTIONS_AVAILABLE "Yes")
 

@@ -1,5 +1,6 @@
 #include <osgGA/TrackballManipulator>
 #include <osg/ShapeDrawable>
+#include <osg/PositionAttitudeTransform>
 
 // CalVR
 #include <cvrMenu/MenuManager.h>
@@ -13,6 +14,9 @@
 
 // ADDED
 #include <cvrKernel/SceneObject.h>
+#include <cvrKernel/PluginHelper.h>
+#include <cvrKernel/ComController.h>
+#include <cvrInput/TrackingManager.h>
 
 #include "calvr_application.h"
 #include "util.h"
@@ -42,7 +46,7 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     _navigation = cvr::Navigation::instance();
 
     _menuBasics = new MenuBasics();
-    _spatialViz = new SpatialViz();
+//    _spatialViz = new SpatialViz();
 
     initialize_camera();
     LOGI("========== finished CalVR app constructor =========");
@@ -186,8 +190,8 @@ void calvr_application::onCreate(const char *calvr_path) {
 
     if(!_menuBasics->init())
         LOGE("MENU BASICS");
-    if(!_spatialViz->init())
-        LOGE("SPATIALVIZ INITIALIZATION FAIL");
+//    if(!_spatialViz->init())
+//        LOGE("SPATIALVIZ INITIALIZATION FAIL");
 
     _viewer->setSceneData(_root.get());
     LOGI("=== ON CREATE COMPLETE ===");

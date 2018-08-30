@@ -9,7 +9,7 @@
 #include <cvrKernel/CVRViewer.h>
 
 // Other
-#include "SpatialViz.h"
+//#include "SpatialViz.h"
 #include "../../../../../../calvr_plugins/general/MenuBasics/MenuBasics.h"
 
 enum{
@@ -35,7 +35,7 @@ private:
     cvr::Navigation *_navigation;
 
     MenuBasics* _menuBasics;
-    SpatialViz* _spatialViz;
+//    SpatialViz* _spatialViz;
 
     // ADDED for translating and rotating the osg object
     osg::ref_ptr<osg::PositionAttitudeTransform> _sphereTrans;

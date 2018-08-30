@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class JniInterfaceOSG {
     static {
-        System.loadLibrary("arBasicd");
+        System.loadLibrary("arBasic");
     }
 
     private static final String TAG = "JniInterfaceOSG";

@@ -5,7 +5,7 @@ import android.content.res.AssetManager;
 public class JniInterfaceCalVR {
 
     static {
-        System.loadLibrary("simpleCalVRd");
+        System.loadLibrary("simpleCalVR");
     }
 
     private static final String TAG = "JniInterfaceCalVR";
