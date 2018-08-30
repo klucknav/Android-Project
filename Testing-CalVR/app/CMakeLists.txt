@@ -65,6 +65,10 @@ SET(PHYSX_LIBS
     PhysX3Cooking
     PhysX3Extensions
     PhysX3Vehicle
+    PsFastXml
+    PxFoundation
+    PxPvdSDK
+    PxTask
     SceneQuery
     SimulationController
 )

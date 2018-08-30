@@ -1,48 +1,68 @@
 ## static build PhysX ##
-SET(PHYSX_DIR "${EXT_PROJ_DIR}/PhysX")
+SET(PHYSX_SOURCE_DIR "${EXT_PROJ_DIR}/PhysX")
+SET(PHYSX_BUILD_DIR "${PHYSX_SOURCE_DIR}/build/${ANDROID_ABI}")
+
 message("--- in PhysX CMake ---")
 message("PhysX: EXT_PROJ_DIR = ${EXT_PROJ_DIR}")
-message("PhysX: PHYSX_DIR = ${PHYSX_DIR}")
+message("PhysX: PHYSX_SOURCE_DIR = ${PHYSX_SOURCE_DIR}")
 
-include_directories(${PHYSX_DIR}/include)
+add_definitions(-DPHYSX_VERSION=34)
+#SET(PHYSX_LIBRARY "PhysX3")
+#SET(PHYSX_INCLUDE_DIR "${PHYSX_SOURCE_DIR}/include")
+#SET(PHYSX_FOUND "Yes")
+
+include_directories(${PHYSX_BUILD_DIR}/include)
+include_directories(${PHYSX_SOURCE_DIR}/include)
 
 ### import the PhysX libraries ###
 add_library(LowLevel STATIC IMPORTED)
-set_target_properties(LowLevel PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevel.a)
+set_target_properties(LowLevel PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libLowLevel.a)
 
 add_library(LowLevelAABB STATIC IMPORTED)
-set_target_properties(LowLevelAABB PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelAABB.a)
+set_target_properties(LowLevelAABB PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libLowLevelAABB.a)
 
 add_library(LowLevelCloth STATIC IMPORTED)
-set_target_properties(LowLevelCloth PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelCloth.a)
+set_target_properties(LowLevelCloth PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libLowLevelCloth.a)
 
 add_library(LowLevelDynamics STATIC IMPORTED)
-set_target_properties(LowLevelDynamics PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelDynamics.a)
+set_target_properties(LowLevelDynamics PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libLowLevelDynamics.a)
 
 add_library(LowLevelParticles STATIC IMPORTED)
-set_target_properties(LowLevelParticles PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libLowLevelParticles.a)
+set_target_properties(LowLevelParticles PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libLowLevelParticles.a)
 
 add_library(PhysX3 STATIC IMPORTED)
-set_target_properties(PhysX3 PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3.a)
+set_target_properties(PhysX3 PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3.a)
 
 add_library(PhysX3CharacterKinematic STATIC IMPORTED)
-set_target_properties(PhysX3CharacterKinematic PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3CharacterKinematic.a)
+set_target_properties(PhysX3CharacterKinematic PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3CharacterKinematic.a)
 
 add_library(PhysX3Common STATIC IMPORTED)
-set_target_properties(PhysX3Common PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Common.a)
+set_target_properties(PhysX3Common PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3Common.a)
 
 add_library(PhysX3Cooking STATIC IMPORTED)
-set_target_properties(PhysX3Cooking PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Cooking.a)
+set_target_properties(PhysX3Cooking PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3Cooking.a)
 
 add_library(PhysX3Extensions STATIC IMPORTED)
-set_target_properties(PhysX3Extensions PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Extensions.a)
+set_target_properties(PhysX3Extensions PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3Extensions.a)
 
 add_library(PhysX3Vehicle STATIC IMPORTED)
-set_target_properties(PhysX3Vehicle PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libPhysX3Vehicle.a)
+set_target_properties(PhysX3Vehicle PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3Vehicle.a)
+
+add_library(PsFastXml STATIC IMPORTED)
+set_target_properties(PsFastXml PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPsFastXml.a)
+
+add_library(PxFoundation STATIC IMPORTED)
+set_target_properties(PxFoundation PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPxFoundation.a)
+
+add_library(PxPvdSDK STATIC IMPORTED)
+set_target_properties(PxPvdSDK PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPxPvdSDK.a)
+
+add_library(PxTask STATIC IMPORTED)
+set_target_properties(PxTask PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPxTask.a)
 
 add_library(SceneQuery STATIC IMPORTED)
-set_target_properties(SceneQuery PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libSceneQuery.a)
+set_target_properties(SceneQuery PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSceneQuery.a)
 
 add_library(SimulationController STATIC IMPORTED)
-set_target_properties(SimulationController PROPERTIES IMPORTED_LOCATION ${PHYSX_DIR}/libSimulationController.a)
+set_target_properties(SimulationController PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSimulationController.a)
 ### end PhysX library imports ###
