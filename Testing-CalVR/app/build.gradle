@@ -16,13 +16,14 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions -Wno-error=format-security"
-                arguments "-DANDROID_STL=c++_static",
+                cFlags "-std=gnu11"
+                cppFlags "-std=c++17 -frtti -fexceptions -Wno-error=format-security"
+                arguments "-DANDROID_STL=c++_shared",
                         "-DARCORE_LIBPATH=${arcore_libpath}/jni"
             }
         }
         ndk {
-            abiFilters "arm64-v8a", "x86"
+            abiFilters "arm64-v8a"
         }
     }
     buildTypes {

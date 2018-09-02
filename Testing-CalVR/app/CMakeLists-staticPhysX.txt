@@ -6,10 +6,13 @@ message("--- in PhysX CMake ---")
 message("PhysX: EXT_PROJ_DIR = ${EXT_PROJ_DIR}")
 message("PhysX: PHYSX_SOURCE_DIR = ${PHYSX_SOURCE_DIR}")
 
+SET(PHYSX_LIBRARY "PhysX3")
+SET(PHYSX_LIBRARIES "PhysX3" "LowLevel" "PhysX3Common" "PhysX3Extensions" "PhysX3Cooking")
+SET(PHYSX_INCLUDE_DIR "${PHYSX_SOURCE_DIR}/include")
+SET(PHYSX_FOUND "Yes")
 add_definitions(-DPHYSX_VERSION=34)
-#SET(PHYSX_LIBRARY "PhysX3")
-#SET(PHYSX_INCLUDE_DIR "${PHYSX_SOURCE_DIR}/include")
-#SET(PHYSX_FOUND "Yes")
+add_definitions(-DHAVE_PHYSX)
+add_definitions(-DNDEBUG)
 
 include_directories(${PHYSX_BUILD_DIR}/include)
 include_directories(${PHYSX_SOURCE_DIR}/include)
@@ -48,6 +51,12 @@ set_target_properties(PhysX3Extensions PROPERTIES IMPORTED_LOCATION ${PHYSX_BUIL
 add_library(PhysX3Vehicle STATIC IMPORTED)
 set_target_properties(PhysX3Vehicle PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPhysX3Vehicle.a)
 
+add_library(SceneQuery STATIC IMPORTED)
+set_target_properties(SceneQuery PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSceneQuery.a)
+
+add_library(SimulationController STATIC IMPORTED)
+set_target_properties(SimulationController PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSimulationController.a)
+
 add_library(PsFastXml STATIC IMPORTED)
 set_target_properties(PsFastXml PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPsFastXml.a)
 
@@ -59,10 +68,4 @@ set_target_properties(PxPvdSDK PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/l
 
 add_library(PxTask STATIC IMPORTED)
 set_target_properties(PxTask PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libPxTask.a)
-
-add_library(SceneQuery STATIC IMPORTED)
-set_target_properties(SceneQuery PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSceneQuery.a)
-
-add_library(SimulationController STATIC IMPORTED)
-set_target_properties(SimulationController PROPERTIES IMPORTED_LOCATION ${PHYSX_BUILD_DIR}/libSimulationController.a)
 ### end PhysX library imports ###

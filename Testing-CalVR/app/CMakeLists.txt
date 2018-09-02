@@ -54,25 +54,26 @@ SET(KERNEL_LIBRARIES
     GLESv2                        #
 )
 
+## PhysX ##
+# physx needs cpufeatures
+message("=== ANDROID_NDK: ${ANDROID_NDK} ===")
+include_directories(${ANDROID_NDK}/sources/android/cpufeatures)
+add_library(cpufeatures ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+target_link_libraries(cpufeatures dl)
+
 SET(PHYSX_LIBS
-    LowLevel
-    LowLevelAABB
-    LowLevelCloth
-    LowLevelDynamics
-    LowLevelParticles
-    PhysX3
-    PhysX3CharacterKinematic
-    PhysX3Common
-    PhysX3Cooking
-    PhysX3Extensions
-    PhysX3Vehicle
-    PsFastXml
-    PxFoundation
     PxPvdSDK
-    PxTask
-    SceneQuery
-    SimulationController
+    PsFastXml
+    PhysX3CharacterKinematic
+    PhysX3Extensions
+    PhysX3Cooking
+    PhysX3Vehicle
+    PhysX3
+    PhysX3Common
+    PxFoundation
+    cpufeatures
 )
+##  End PhysX ##
 
 # Path to external projects:
 set(EXT_PROJ_DIR "${CMAKE_SOURCE_DIR}/../../..")
@@ -94,7 +95,7 @@ include(CMakeLists-staticMXML.txt)     # static
 include(CMakeLists-staticCalVR.txt)    # static
 
 # statically link the PhysX libraries
-include(CMakeLists-staticPhysX.txt)
+#include(CMakeLists-staticPhysX.txt)
 
 # build the plugin(s)
 include(CMakeLists-buildCalVR_plugin.txt)

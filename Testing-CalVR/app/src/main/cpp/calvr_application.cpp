@@ -46,7 +46,7 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     _navigation = cvr::Navigation::instance();
 
     _menuBasics = new MenuBasics();
-//    _spatialViz = new SpatialViz();
+    _spatialViz = new SpatialViz();
 
     initialize_camera();
     LOGI("========== finished CalVR app constructor =========");
@@ -82,10 +82,10 @@ void calvr_application::createDebugOSGsphere(osg::Vec3 pos) {
     stateSet->addUniform( new osg::Uniform("lightPosition", lightDir));
 
     geode->addDrawable(shape.get());
-    //_root->addChild(geode);       // original
-    _sphereTrans->addChild(geode);  // ADDED
+//    _root->addChild(geode);                 // original
+    _sphereTrans->addChild(geode);          // ADDED
+    _root->addChild(_sphereTrans.get());    // ADDED
 }
-
 void calvr_application::createDebugOSGcube(osg::Vec3 pos) {
     osg::ref_ptr<osg::ShapeDrawable> shapeDrawable = new osg::ShapeDrawable;
     shapeDrawable->setShape(new osg::Box(pos, 0.2f));
@@ -129,8 +129,9 @@ void calvr_application::createDebugOSGcube(osg::Vec3 pos) {
     LOGI("SO_bbox: x = (%f, %f), y = (%f, %f), z = (%f, %f)", xMin1, xMax1, yMin1, yMax1, zMin1, zMax1);
 
     geode->addDrawable(shapeDrawable.get());
-    //_root->addChild(geode);       // original
-    _cubeTrans->addChild(geode);    // ADDED
+//    _root->addChild(geode);                 // original
+    _cubeTrans->addChild(geode);            // ADDED
+    _root->addChild(_cubeTrans.get());      // ADDED
 }
 
 
@@ -153,11 +154,10 @@ void calvr_application::onCreate(const char *calvr_path) {
     // set the environment paths
     setupDefaultEnvironment(calvr_path);
 
-    _root->addChild(_sphereTrans.get());    // ADDED
-    _root->addChild(_cubeTrans.get());      // ADDED
 
-    //createDebugOSGsphere(osg::Vec3(-0.51f, 0.0f, 2.675f));
-    createDebugOSGcube(osg::Vec3(0,0,0));
+//    createDebugOSGsphere(osg::Vec3(-0.51f, 0.0f, 2.675f));
+//    createDebugOSGsphere(osg::Vec3(0.0, 0.1, 0.0));
+//    createDebugOSGcube(osg::Vec3(0,0,0));
 
     std::string fontfile = getenv("CALVR_RESOURCE_DIR");
     fontfile = fontfile + "arial.ttf";
@@ -190,8 +190,12 @@ void calvr_application::onCreate(const char *calvr_path) {
 
     if(!_menuBasics->init())
         LOGE("MENU BASICS");
-//    if(!_spatialViz->init())
-//        LOGE("SPATIALVIZ INITIALIZATION FAIL");
+    else
+        LOGI("MENU BASICS OK");
+    if(!_spatialViz->init())
+        LOGE("SPATIALVIZ INITIALIZATION FAIL");
+    else
+        LOGI("SPATIAL VIZ OK");
 
     _viewer->setSceneData(_root.get());
     LOGI("=== ON CREATE COMPLETE ===");

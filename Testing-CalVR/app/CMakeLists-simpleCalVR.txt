@@ -15,7 +15,7 @@ target_include_directories(simpleCalVR PRIVATE
 target_link_libraries(simpleCalVR
 
                       MenuBasics
-                      #SpatialViz
+                      SpatialViz
 
                       android
                       mediandk
