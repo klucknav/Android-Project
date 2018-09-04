@@ -36,7 +36,7 @@ SET(KERNEL_LIBRARIES
     osgText                       #
     osgGA                         #
     osgdb_tiff
-    osgdb_rgb                     # uncommenting OK
+    osgdb_rgb                     #
     osgdb_png
     osgdb_jpeg
     osgdb_osg                     #
@@ -82,6 +82,9 @@ SET(CALVR_DIR "${EXT_PROJ_DIR}/CalVR")
 # build the dependencies (tiff, png, jpeg)
 include(CMakeLists-dependencies.txt)
 
+# statically link the PhysX libraries
+include(CMakeLists-staticPhysX.txt)
+
 # build OSG
 #include(CMakeLists-buildOSG.txt)   # build
 include(CMakeLists-staticOSG.txt)   # static
@@ -91,13 +94,11 @@ include(CMakeLists-staticOSG.txt)   # static
 include(CMakeLists-staticMXML.txt)     # static
 
 # build CalVR
-#include(CMakeLists-buildCalVR.txt)     # build
-include(CMakeLists-staticCalVR.txt)    # static
-
-# statically link the PhysX libraries
-#include(CMakeLists-staticPhysX.txt)
+include(CMakeLists-buildCalVR.txt)     # build
+#include(CMakeLists-staticCalVR.txt)    # static
 
 # build the plugin(s)
+OPTION(PLUGIN_SPATIALVIZ "SpatialViz Plugin" ON)
 include(CMakeLists-buildCalVR_plugin.txt)
 
 

@@ -56,7 +56,7 @@ void calvr_application::initialize_camera() {
 
     osg::ref_ptr<osg::Camera> mainCam = _viewer->getCamera();
     mainCam->setClearColor(osg::Vec4f(0.81, 0.77, 0.75,1.0));
-    osg::Vec3d eye = osg::Vec3d(0,-10,0);
+    osg::Vec3d eye = osg::Vec3d(0,-1000,0);
     osg::Vec3d center = osg::Vec3d(0,0,0);
     osg::Vec3d up = osg::Vec3d(0,0,1);
     mainCam->setViewMatrixAsLookAt(eye,center,up); // usual up vector
@@ -192,7 +192,10 @@ void calvr_application::onCreate(const char *calvr_path) {
         LOGE("MENU BASICS");
     else
         LOGI("MENU BASICS OK");
-    if(!_spatialViz->init())
+
+    bool test = _spatialViz->init();
+    LOGI("=============== bool test = %s ===============", test ? "true" : "false");
+    if(!test)
         LOGE("SPATIALVIZ INITIALIZATION FAIL");
     else
         LOGI("SPATIAL VIZ OK");
