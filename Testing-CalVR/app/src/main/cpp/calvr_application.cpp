@@ -51,6 +51,10 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     initialize_camera();
     LOGI("========== finished CalVR app constructor =========");
 }
+calvr_application::~calvr_application() {
+    if(_viewer)
+        _viewer = nullptr;
+}
 
 void calvr_application::initialize_camera() {
 
@@ -193,14 +197,18 @@ void calvr_application::onCreate(const char *calvr_path) {
     else
         LOGI("MENU BASICS OK");
 
-    bool test = _spatialViz->init();
-    LOGI("=============== bool test = %s ===============", test ? "true" : "false");
-    if(!test)
-        LOGE("SPATIALVIZ INITIALIZATION FAIL");
-    else
-        LOGI("SPATIAL VIZ OK");
+    LOGI("- about to set Scene Data - ");
+    _scene->setViewerScene(_viewer);
+//    _viewer->setSceneData(_root.get());   // this line has issues when SpatialViz initialized
+    LOGI("- set the scene data - ");
 
-    _viewer->setSceneData(_root.get());
+//    bool test = _spatialViz->init();
+//    LOGI("=============== bool test = %s ===============", test ? "true" : "false");
+//    if(!test)
+//        LOGE("SPATIALVIZ INITIALIZATION FAIL");
+//    else
+//        LOGI("SPATIAL VIZ OK");
+
     LOGI("=== ON CREATE COMPLETE ===");
 }
 
@@ -213,13 +221,16 @@ void calvr_application::onDrawFrame(){
     _scene->update();
     _menuManager->update();         // to make sure the menu options gets drawn
     _interactionManager->update();  // to process the tap events
-
     _navigation->update();
     _scene->postEventUpdate();
-    _viewer->frame();
+    LOGI("here? 8");
+    _viewer->frame();               // here is where it falters with SpatialViz
+    LOGI("here? 9");
 
     if(_comController->getIsSyncError())
         LOGE("Sync error");
+
+    LOGI("FINISHED");
 }
 
 void calvr_application::onViewChanged(int rotation, int width, int height){
@@ -228,8 +239,8 @@ void calvr_application::onViewChanged(int rotation, int width, int height){
     LOGI("===== WIDTH = %d, HEIGHT = %d =====", width, height);
     _screenWidth = width;
     _screenHeight = height;
-//    ratio = _screenHeight/540;          // 540 is CalVR height
-    ratio = _screenHeight/1610;         // 1610 is CalVR height
+    ratio = _screenHeight/540/3;          // 540 is CalVR height
+//    ratio = _screenHeight/1610;         // 1610 is updated CalVR height
     objRatio = _screenHeight/5.35;      // for osgObj location
 }
 
@@ -247,9 +258,11 @@ void calvr_application::pressMouse(bool down, float x, float y) {
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     if (down) {
         interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOWN);
+        LOGI("=== BUTTON DOWN ===");
     }
     else {
         interactionEvent->setInteraction(cvr::Interaction::BUTTON_UP);
+        LOGI("=== BUTTON UP ===");
 //        osg::Vec3 pos = screenToWorldObj(x, y);
 //        createDebugOSGsphere(pos);
 //        LOGI("making new sphere at (x, y) = (%f, %f)", pos[0] , pos[2]);
@@ -268,15 +281,17 @@ void calvr_application::pressMouse(bool down, float x, float y) {
 
 void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y) {
 
-    if(moveOBJ) {
-        LOGI("calvr_app - moveMouse: x = %f, y = %f", x, y);
-        LOGI("calvr_app - moveMouse: Dx = %f, Dy = %f", delta_x, delta_y);
+//    LOGI("calvr_app - moveMouse: x = %f, y = %f", x, y);
+//    LOGI("calvr_app - moveMouse: Dx = %f, Dy = %f", delta_x, delta_y);
 
+    if(moveOBJ) {
         if (currMode == MOVE_WORLD) {
+            LOGI("calvr_app - MOVE_WORLD MODE");
             totalRotation = totalRotation * osg::Quat(delta_y, xAxis) * osg::Quat(delta_x, zAxis);
             _currTrans->setAttitude(totalRotation);
         }
         if (currMode == SCALE) {
+            LOGI("calvr_app - SCALE MODE");
             osg::Vec3 prevScale = _currTrans->getScale();
             float deltaReduced = delta_y;
             osg::Vec3 currScale = osg::Vec3(deltaReduced, deltaReduced, deltaReduced);
@@ -293,15 +308,16 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
         }
 
         if (currMode == DRIVE) {
+            LOGI("calvr_app - DRIVE MODE");
             osg::Vec3 prevPos = _currTrans->getPosition();
-            LOGI("calvr_app - moveMouse: prevPos: x = %f, y = %f, z = %f", prevPos[0], prevPos[1],
-                 prevPos[3]);
+            LOGI("calvr_app - moveMouse: prevPos: x = %f, y = %f, z = %f", prevPos[0], prevPos[1], prevPos[3]);
             osg::Vec3 move = osg::Vec3(delta_x / 2.5f, 0, 0);
             LOGI("calvr_app - moveMouse: move: x = %f, y = %f, z = %f", move[0], move[1], move[3]);
             _currTrans->setPosition(prevPos + move);
         }
 
         if (currMode == FLY) {
+            LOGI("calvr_app - FLY MODE");
             osg::Vec3 prevPos = _currTrans->getPosition();
             osg::Vec3 move = osg::Vec3(delta_x / 2.5f, 0, -delta_y / 2.5f);
             _currTrans->setPosition(prevPos + move);
@@ -309,9 +325,13 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
     }
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     interactionEvent->setButton(0); //primary button
+    interactionEvent->setHand(0);
+    interactionEvent->setX(x);    // no diff with coord from screenToWorld and x
+    interactionEvent->setY(y);
     interactionEvent->setInteraction(cvr::Interaction::BUTTON_DRAG);
+    LOGI("=== BUTTON DRAG ===");
     osg::Matrix m;
-    m.makeTranslate(screenToWorld(x,y));
+    m.makeTranslate(screenToWorld(x, y));     // TODO try screenToWorldObj - no visible change
     interactionEvent->setTransform(m);
     _interactionManager->addEvent(interactionEvent);
 }
@@ -333,7 +353,8 @@ void calvr_application::doubleTap(float x, float y) {
     interactionEvent->setY(y);
     interactionEvent->setHand(0);
     osg::Matrix m;
-    m.makeTranslate(screenToWorld(x, y));    // menu position
+    osg::Vec3 menuPos = screenToWorld(x, y);
+    m.makeTranslate(menuPos);    // menu position
     interactionEvent->setTransform(m);
     _trackingManager->setTouchEventMatrix(m);
 
@@ -352,6 +373,7 @@ void calvr_application::longPress(float x, float y){
 
 // move modes
 void calvr_application::switchMoveMode() {
+    LOGI("Switched Mode to: %s", moveOBJ ? "off" : "on");
     moveOBJ = !moveOBJ;
 }
 void calvr_application::setMode(int newMode) {
@@ -367,14 +389,18 @@ void calvr_application::reset() {
 osg::Vec3f calvr_application::screenToWorld(float x, float y) {
 //    LOGI("----- ANDROID: X = %f, Y = %f -----", x, y);
 
-    double newX = (x-_screenWidth/2.0)/ratio;
+    double newX = (x -_screenWidth/2.0)/ratio;
     double newZ = (_screenHeight/2 - y)/ratio;
 
 //    LOGI("----- CalVR: X = %f, Y = %f -----", newX, newZ);
     return osg::Vec3f(newX, 0, newZ);
 }
 osg::Vec3 calvr_application::screenToWorldObj(float x, float y){
-    double newX = (x-_screenWidth/2.0)/objRatio;
+//    LOGI("----- ANDROID: X = %f, Y = %f -----", x, y);
+
+    double newX = (x -_screenWidth/2.0)/objRatio;
     double newZ = (_screenHeight/2 - y)/objRatio;
+
+//    LOGI("----- CalVR: X = %f, Y = %f -----", newX, newZ);
     return osg::Vec3f(newX, 0, newZ);
 }

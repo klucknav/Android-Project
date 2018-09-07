@@ -23,8 +23,7 @@
             android:name=".OSG_Activity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/app_name"
-            android:screenOrientation="locked">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

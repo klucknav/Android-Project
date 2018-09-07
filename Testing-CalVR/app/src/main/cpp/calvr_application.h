@@ -46,7 +46,7 @@ private:
     osg::Vec3 yAxis = osg::Vec3(0.0, 1.0, 0.0);
     osg::Vec3 zAxis = osg::Vec3(0.0, 0.0, 1.0);
     int currMode = DRIVE;
-    bool moveOBJ = true;
+    bool moveOBJ = false;
 
     // to reset position and orientation
     osg::Vec3 defaultScale = osg::Vec3(1,1,1);
@@ -65,6 +65,7 @@ private:
 
 public:
     calvr_application(AAssetManager *assetManager);
+    ~calvr_application();
 
     void onCreate(const char * calvr_path);
     void onDrawFrame();

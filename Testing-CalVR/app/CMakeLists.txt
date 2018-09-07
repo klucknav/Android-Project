@@ -94,11 +94,10 @@ include(CMakeLists-staticOSG.txt)   # static
 include(CMakeLists-staticMXML.txt)     # static
 
 # build CalVR
-include(CMakeLists-buildCalVR.txt)     # build
-#include(CMakeLists-staticCalVR.txt)    # static
+#include(CMakeLists-buildCalVR.txt)     # build
+include(CMakeLists-staticCalVR.txt)    # static
 
 # build the plugin(s)
-OPTION(PLUGIN_SPATIALVIZ "SpatialViz Plugin" ON)
 include(CMakeLists-buildCalVR_plugin.txt)
 
 

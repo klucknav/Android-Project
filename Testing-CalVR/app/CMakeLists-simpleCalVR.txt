@@ -14,13 +14,12 @@ target_include_directories(simpleCalVR PRIVATE
 # add lib dependencies
 target_link_libraries(simpleCalVR
 
-                      MenuBasics
                       SpatialViz
+                      MenuBasics
 
                       android
                       mediandk
                       arcore
 
                       ${KERNEL_LIBRARIES}
-                      #${PHYSX_LIBS}
                       )
