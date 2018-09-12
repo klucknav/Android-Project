@@ -10,7 +10,6 @@
 #include <cvrUtil/AndroidGetenv.h>
 #include <cvrKernel/CVRViewer.h>
 #include <cvrKernel/InteractionEvent.h>
-#include <cvrMenu/SubMenu.h>
 
 // ADDED
 #include <cvrKernel/SceneObject.h>
@@ -55,7 +54,6 @@ calvr_application::~calvr_application() {
     if(_viewer)
         _viewer = nullptr;
 }
-
 void calvr_application::initialize_camera() {
 
     osg::ref_ptr<osg::Camera> mainCam = _viewer->getCamera();
@@ -151,7 +149,6 @@ void calvr_application::setupDefaultEnvironment(const char *root_path) {
 
     LOGI("--- default environment setUp Complete ---");
 }
-
 void calvr_application::onCreate(const char *calvr_path) {
 
     LOGI("--- onCreate ---");
@@ -202,12 +199,12 @@ void calvr_application::onCreate(const char *calvr_path) {
 //    _viewer->setSceneData(_root.get());   // this line has issues when SpatialViz initialized
     LOGI("- set the scene data - ");
 
-//    bool test = _spatialViz->init();
-//    LOGI("=============== bool test = %s ===============", test ? "true" : "false");
-//    if(!test)
-//        LOGE("SPATIALVIZ INITIALIZATION FAIL");
-//    else
-//        LOGI("SPATIAL VIZ OK");
+    bool test = _spatialViz->init();
+    LOGI("=============== bool test = %s ===============", test ? "true" : "false");
+    if(!test)
+        LOGE("SPATIALVIZ INITIALIZATION FAIL");
+    else
+        LOGI("SPATIAL VIZ OK");
 
     LOGI("=== ON CREATE COMPLETE ===");
 }
@@ -239,9 +236,10 @@ void calvr_application::onViewChanged(int rotation, int width, int height){
     LOGI("===== WIDTH = %d, HEIGHT = %d =====", width, height);
     _screenWidth = width;
     _screenHeight = height;
-    ratio = _screenHeight/540/3;          // 540 is CalVR height
-//    ratio = _screenHeight/1610;         // 1610 is updated CalVR height
+//    ratio = height/540/3;          // 540 is CalVR height
+    ratio = height/2134;         // 2134 is updated CalVR height (with camera eye at (0,-1000,0))
     objRatio = _screenHeight/5.35;      // for osgObj location
+    LOGI("===== ratio = %f =====", ratio);
 }
 
 void calvr_application::onResourceLoaded(const char *path) {
@@ -273,7 +271,9 @@ void calvr_application::pressMouse(bool down, float x, float y) {
     interactionEvent->setX(x);
     interactionEvent->setY(y);
     osg::Matrix m;
-    m.makeTranslate(screenToWorld(x,y));
+    Vec3 translation = screenToWorld(x, y);
+    //translation /= 1000.0;               // can't do division here bc touch event won't be in the correct place
+    m.makeTranslate(translation);
     interactionEvent->setTransform(m);
     _trackingManager->setTouchEventMatrix(m);
     _interactionManager->addEvent(interactionEvent);
@@ -302,7 +302,6 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
                 return;
             if (nextScale[0] > 10)
                 return;
-
             // set the new scale
             _currTrans->setScale(prevScale - currScale);
         }
@@ -326,12 +325,14 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     interactionEvent->setButton(0); //primary button
     interactionEvent->setHand(0);
-    interactionEvent->setX(x);    // no diff with coord from screenToWorld and x
-    interactionEvent->setY(y);
+//    interactionEvent->setX(x);    // no diff with coord from screenToWorld and x
+//    interactionEvent->setY(y);
     interactionEvent->setInteraction(cvr::Interaction::BUTTON_DRAG);
-    LOGI("=== BUTTON DRAG ===");
+    LOGI("=== BUTTON DRAG === %f, %f", delta_x, delta_y);
     osg::Matrix m;
-    m.makeTranslate(screenToWorld(x, y));     // TODO try screenToWorldObj - no visible change
+    Vec3 translation = screenToWorld(x, y); // testing delta's instead of x and y
+    //translation /= 1000.0;               // 1000 here NOT in press up/down
+    m.makeTranslate(translation);       // TODO try screenToWorldObj - no visible change
     interactionEvent->setTransform(m);
     _interactionManager->addEvent(interactionEvent);
 }
@@ -354,6 +355,7 @@ void calvr_application::doubleTap(float x, float y) {
     interactionEvent->setHand(0);
     osg::Matrix m;
     osg::Vec3 menuPos = screenToWorld(x, y);
+//    menuPos = Vec3(-596,0,-1060);
     m.makeTranslate(menuPos);    // menu position
     interactionEvent->setTransform(m);
     _trackingManager->setTouchEventMatrix(m);
@@ -389,8 +391,8 @@ void calvr_application::reset() {
 osg::Vec3f calvr_application::screenToWorld(float x, float y) {
 //    LOGI("----- ANDROID: X = %f, Y = %f -----", x, y);
 
-    double newX = (x -_screenWidth/2.0)/ratio;
-    double newZ = (_screenHeight/2 - y)/ratio;
+    double newX = (x -_screenWidth/2.0)/0.9;
+    double newZ = (_screenHeight/2 - y)/0.9;
 
 //    LOGI("----- CalVR: X = %f, Y = %f -----", newX, newZ);
     return osg::Vec3f(newX, 0, newZ);
