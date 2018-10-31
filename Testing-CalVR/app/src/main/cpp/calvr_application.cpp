@@ -7,7 +7,8 @@
 #include <cvrMenu/SubMenu.h>
 #include <cvrKernel/SceneManager.h>
 #include <cvrConfig/ConfigManager.h>
-#include <cvrUtil/AndroidGetenv.h>
+#include <cvrUtil/AndroidHelper.h>
+//#include <cvrUtil/AndroidGetenv.h>
 #include <cvrKernel/CVRViewer.h>
 #include <cvrKernel/InteractionEvent.h>
 
@@ -43,6 +44,7 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     _comController = cvr::ComController::instance();
     _trackingManager = cvr::TrackingManager::instance();
     _navigation = cvr::Navigation::instance();
+    //_pluginManager = cvr::PluginManager::instance();
 
     _menuBasics = new MenuBasics();
     _spatialViz = new SpatialViz();
@@ -189,6 +191,8 @@ void calvr_application::onCreate(const char *calvr_path) {
     else
         LOGI("--- MENU INITIALIZED ---");
 
+    //if(!_pluginManager->init(_asset_manager))
+    //    LOGE("==========PLUG IN  FAIL=========");
     if(!_menuBasics->init())
         LOGE("MENU BASICS");
     else
@@ -199,6 +203,7 @@ void calvr_application::onCreate(const char *calvr_path) {
 //    _viewer->setSceneData(_root.get());   // this line has issues when SpatialViz initialized
     LOGI("- set the scene data - ");
 
+    LOGI("about to initialize SpatialViz...");
     bool test = _spatialViz->init();
     LOGI("=============== bool test = %s ===============", test ? "true" : "false");
     if(!test)
@@ -220,6 +225,10 @@ void calvr_application::onDrawFrame(){
     _interactionManager->update();  // to process the tap events
     _navigation->update();
     _scene->postEventUpdate();
+
+    //_pluginManager->preframe();
+    //_viewer->updateTraversal();
+    //_viewer->renderingTraversals();
     LOGI("here? 8");
     _viewer->frame();               // here is where it falters with SpatialViz
     LOGI("here? 9");
@@ -227,6 +236,7 @@ void calvr_application::onDrawFrame(){
     if(_comController->getIsSyncError())
         LOGE("Sync error");
 
+    //_pluginManager->postFrame();
     LOGI("FINISHED");
 }
 
@@ -386,6 +396,25 @@ void calvr_application::reset() {
     _currTrans->setPosition(defaultPos);
     _currTrans->setAttitude(defaultRot);
 }
+
+void calvr_application::leftClick(float x, float y){
+    LOGI("----- LEFT CLICK -----");
+    cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
+    interactionEvent->setButton(1); //secondary button
+    interactionEvent->setInteraction(cvr::Interaction::BUTTON_DOWN);
+    interactionEvent->setX(x);
+    interactionEvent->setY(y);
+    interactionEvent->setHand(0);
+    osg::Matrix m;
+    osg::Vec3 menuPos = screenToWorld(x, y);
+//    menuPos = Vec3(-596,0,-1060);
+    m.makeTranslate(menuPos);    // menu position
+    interactionEvent->setTransform(m);
+    _trackingManager->setTouchEventMatrix(m);
+
+    _interactionManager->addEvent(interactionEvent);
+}
+
 
 // helper functions
 osg::Vec3f calvr_application::screenToWorld(float x, float y) {

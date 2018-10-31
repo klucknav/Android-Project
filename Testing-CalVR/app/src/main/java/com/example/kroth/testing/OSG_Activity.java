@@ -171,7 +171,7 @@ public class OSG_Activity extends AppCompatActivity implements DisplayManager.Di
             }
 
             @Override
-            public void onOneFingerDoubleTap() {
+            public void onOneFingerDoubleTap(float x, float y) {
                 message.setText("1 finger - Double Tap");
                 JniInterfaceOSG.JNIswitchView();
             }
@@ -182,8 +182,13 @@ public class OSG_Activity extends AppCompatActivity implements DisplayManager.Di
             }
 
             @Override
-            public void onOneFingerLongPress() {
+            public void onOneFingerLongPress(MotionEvent event) {
                 message.setText("1 finger - Long Press");
+            }
+
+            @Override
+            public void onTwoFingersUp(float avgX, float avgY){
+                message.setText("2 finger - Single Tap");
             }
 
             @Override
@@ -192,7 +197,7 @@ public class OSG_Activity extends AppCompatActivity implements DisplayManager.Di
             }
 
             @Override
-            public void onTwoFingerTripleTap() {
+            public void onTwoFingerTripleTap(float avgX, float avgY) {
                 message.setText("2 finger - Triple Tap");
             }
 

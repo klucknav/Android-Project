@@ -34,5 +34,6 @@ public class JniInterfaceCalVR {
     public static native void longPress(float x, float y);
 
     // to switch between moving the OSG object and the CalVR screen
-    public static native void JNIoneFingerDoubleTap();
+    public static native void JNIoneFingerDoubleTap(float x, float y);
+    public static native void JNItwoTripleTap(float x, float y);
 }

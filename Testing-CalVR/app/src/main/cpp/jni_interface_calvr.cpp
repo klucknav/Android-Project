@@ -86,8 +86,13 @@ JNI_METHOD(void, longPress)(JNIEnv *env, jclass type, jfloat x, jfloat y) {
 }
 
 // to switch between moving the OSG object and the CalVR screen
-JNI_METHOD(void, JNIoneFingerDoubleTap)(JNIEnv *env, jclass type){
-    controllerNative(calvrAppPtr)->switchMoveMode();
+JNI_METHOD(void, JNIoneFingerDoubleTap)(JNIEnv *env, jclass type, jfloat x, jfloat y){
+    //controllerNative(calvrAppPtr)->switchMoveMode();
+    controllerNative(calvrAppPtr)->leftClick(x, y);
+}
+
+JNI_METHOD(void, JNItwoTripleTap)(JNIEnv *env, jclass type, jfloat x, jfloat y){
+    controllerNative(calvrAppPtr)->leftClick(x, y);
 }
 
 

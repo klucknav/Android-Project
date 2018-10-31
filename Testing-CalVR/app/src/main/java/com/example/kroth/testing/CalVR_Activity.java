@@ -147,9 +147,9 @@ public class CalVR_Activity extends AppCompatActivity {
             }
 
             @Override
-            public void onOneFingerDoubleTap() {
+            public void onOneFingerDoubleTap(float x, float y) {
                 message.setText("1 finger - Double Tap");
-                JniInterfaceCalVR.JNIoneFingerDoubleTap();
+                //JniInterfaceCalVR.JNIoneFingerDoubleTap(x, y);
                 sub_message.setText("");
             }
 
@@ -160,9 +160,17 @@ public class CalVR_Activity extends AppCompatActivity {
             }
 
             @Override
-            public void onOneFingerLongPress() {
+            public void onOneFingerLongPress(MotionEvent event) {
                 message.setText("1 finger - Long Press");
-                sub_message.setText("");
+                //sub_message.setText("sending event");
+                //JniInterfaceCalVR.JNIoneFingerDoubleTap(event.getX(), event.getY());
+            }
+
+            @Override
+            public void onTwoFingersUp(float avgX, float avgY){
+                message.setText("2 finger - Single Tap");
+                sub_message.setText("sending event");
+                JniInterfaceCalVR.JNIoneFingerDoubleTap(avgX, avgY);
             }
 
             @Override
@@ -173,8 +181,9 @@ public class CalVR_Activity extends AppCompatActivity {
             }
 
             @Override
-            public void onTwoFingerTripleTap() {
+            public void onTwoFingerTripleTap(float avgX, float avgY) {
                 message.setText("2 finger - Triple Tap");
+                JniInterfaceCalVR.JNItwoTripleTap(avgX, avgY);
                 sub_message.setText("");
             }
 

@@ -7,12 +7,13 @@
 #include "util.h"
 
 // Initialize OSG plugins when OpenSceneGraph is built as a static library.
-USE_OSGPLUGIN(osg2)
-USE_OSGPLUGIN(rgb)
-USE_OSGPLUGIN(tiff)
+//USE_OSGPLUGIN(osg2)
+//USE_OSGPLUGIN(rgb)
+//USE_OSGPLUGIN(tiff)
+
 //USE_OSGPLUGIN(png)
 //USE_OSGPLUGIN(jpeg)
-USE_SERIALIZER_WRAPPER_LIBRARY(osg)
+//USE_SERIALIZER_WRAPPER_LIBRARY(osg)
 
 using namespace osg;
 

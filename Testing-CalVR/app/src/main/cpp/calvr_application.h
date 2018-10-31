@@ -33,6 +33,7 @@ private:
     cvr::ComController *_comController;
     cvr::TrackingManager *_trackingManager;
     cvr::Navigation *_navigation;
+    //cvr::PluginManager *_pluginManager;
 
     MenuBasics* _menuBasics;
     SpatialViz* _spatialViz;
@@ -85,6 +86,9 @@ public:
     void switchMoveMode();      // switch between moving the object and CalVR controls
     void setMode(int newMode);  // how to move the obj
     void reset();
+
+    void leftClick(float x, float y);
+
     osg::Vec3f screenToWorld(float x, float y);
     osg::Vec3 screenToWorldObj(float x, float y);
 };

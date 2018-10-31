@@ -28,6 +28,7 @@ public abstract class MultiFingerTapDetector {
     private byte mNumThreeFingerTaps = 0;
 
     private boolean oneFingerDown = false;
+    private boolean twoFingerDown = false;
 
     private void resetOne(long time){
         mFirstDownTimeOne = time;
@@ -75,6 +76,8 @@ public abstract class MultiFingerTapDetector {
             case MotionEvent.ACTION_POINTER_DOWN:
                 oneFingerDown = false;
                 onMoreFingersDown(event);
+                if (event.getPointerCount() == 2)
+                    twoFingerDown = true;
                 break;
 
             // POINTER_UP - when a second(+) finger leaves the screen
@@ -125,13 +128,18 @@ public abstract class MultiFingerTapDetector {
                 }
                 if(!mSeparateTouchesTwo) {
                     mSeparateTouchesTwo = true;
+                    // if we had two fingers touching the screen 
+                    if (twoFingerDown){
+                        onTwoFingersUp(avgX, avgY);
+                        twoFingerDown = false;
+                    }
                 }
                 if(!mSeparateTouchesThree){
                     mSeparateTouchesThree = true;
                 }
                 if (mSeparateTouchesOne) {
                     if (mNumOneFingerTaps == 2 && event.getEventTime() - mFirstDownTimeOne < TIMEOUT) {
-                        onOneFingerDoubleTap();
+                        onOneFingerDoubleTap(event.getX(), event.getY());
                         return true;
                     }
                     if (mNumOneFingerTaps == 3 && event.getEventTime() - mFirstDownTimeOne < TRIPLE_TIMEOUT){
@@ -148,7 +156,7 @@ public abstract class MultiFingerTapDetector {
                         return true;
                     }
                     if (mNumTwoFingerTaps == 3 && event.getEventTime() - mFirstDownTimeTwo < TRIPLE_TIMEOUT){
-                        onTwoFingerTripleTap();
+                        onTwoFingerTripleTap(avgX, avgY);
                         mFirstDownTimeTwo = 0;
                         return true;
                     }
@@ -172,6 +180,11 @@ public abstract class MultiFingerTapDetector {
                     onOneFingerMove(event);
                     return true;
                 }
+                /*// if we have just the one finger touching the screen and time is longer than the TIMEOUT
+                if (event.getPointerCount() == 1 && oneFingerDown && event.getEventTime() - event.getDownTime() > LONG_PRESS_TIMEOUT){
+                    onOneFingerLongPress(event);
+                    return true;
+                }*/
                 // if we have two fingers down and time is longer than the TIMEOUT
                 if (event.getPointerCount() == 2 && event.getEventTime() - event.getDownTime() > LONG_PRESS_TIMEOUT) {
                     onTwoFingerLongPress(event);
@@ -207,13 +220,14 @@ public abstract class MultiFingerTapDetector {
     public abstract void onTwoFingersMove(MotionEvent event);
     public abstract void onThreeFingersMove(MotionEvent event);
 
-    public abstract void onOneFingerDoubleTap();
+    public abstract void onOneFingerDoubleTap(float x, float y);
     public abstract void onOneFingerTripleTap();
-    public abstract void onOneFingerLongPress();
+    public abstract void onOneFingerLongPress(MotionEvent event);
 
     // TWO FINGER TAPS
+    public abstract void onTwoFingersUp(float avgX, float avgY);
     public abstract void onTwoFingerDoubleTap(float avgX, float avgY);
-    public abstract void onTwoFingerTripleTap();
+    public abstract void onTwoFingerTripleTap(float avgX, float avgY);
     public abstract void onTwoFingerLongPress(MotionEvent event);
 
     // THREE FINGER TAPS
