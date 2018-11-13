@@ -6,7 +6,8 @@ import android.view.ViewConfiguration;
 
 public abstract class MultiFingerTapDetector {
 
-    private static final int TIMEOUT = ViewConfiguration.getDoubleTapTimeout() + 100;
+    private static final int TIMEOUT = ViewConfiguration.getDoubleTapTimeout();
+    private static final int DOUBLE_TIMEOUT = ViewConfiguration.getDoubleTapTimeout() + 100;
     private static final int TRIPLE_TIMEOUT = ViewConfiguration.getDoubleTapTimeout() + 250;
     private static final int LONG_PRESS_TIMEOUT = ViewConfiguration.getLongPressTimeout();
 
@@ -74,10 +75,13 @@ public abstract class MultiFingerTapDetector {
 
             // as soon as the second finger touches the screen no longer a oneTouch event
             case MotionEvent.ACTION_POINTER_DOWN:
-                oneFingerDown = false;
-                onMoreFingersDown(event);
-                if (event.getPointerCount() == 2)
+                if (event.getPointerCount() > 1) {
+                    oneFingerDown = false;
+                    onMoreFingersDown(event);
+                }
+                if (event.getPointerCount() == 2) {
                     twoFingerDown = true;
+                }
                 break;
 
             // POINTER_UP - when a second(+) finger leaves the screen
@@ -114,6 +118,12 @@ public abstract class MultiFingerTapDetector {
             // UP - when the first finger leaves the screen
             case MotionEvent.ACTION_UP:
 
+                // if we had 2 fingers down
+                if(twoFingerDown){
+                    onTwoFingersUp(avgX, avgY);
+                    twoFingerDown = false;
+                }
+                // if we only had 1 finger touch
                 if(oneFingerDown){
                     onOneFingerUp(event);
                     oneFingerDown = false;
@@ -128,7 +138,7 @@ public abstract class MultiFingerTapDetector {
                 }
                 if(!mSeparateTouchesTwo) {
                     mSeparateTouchesTwo = true;
-                    // if we had two fingers touching the screen 
+                    // if we had two fingers touching the screen
                     if (twoFingerDown){
                         onTwoFingersUp(avgX, avgY);
                         twoFingerDown = false;

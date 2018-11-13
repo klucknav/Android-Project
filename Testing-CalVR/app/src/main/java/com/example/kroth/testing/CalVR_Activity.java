@@ -170,7 +170,8 @@ public class CalVR_Activity extends AppCompatActivity {
             public void onTwoFingersUp(float avgX, float avgY){
                 message.setText("2 finger - Single Tap");
                 sub_message.setText("sending event");
-                JniInterfaceCalVR.JNIoneFingerDoubleTap(avgX, avgY);
+                JniInterfaceCalVR.JNItwoTripleTap(avgX, avgY);
+                //JniInterfaceCalVR.JNIFingerDoubleTap(avgX, avgY);
             }
 
             @Override

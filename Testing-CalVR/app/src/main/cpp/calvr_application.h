@@ -7,6 +7,7 @@
 #include <osgViewer/Viewer>
 // CalVR
 #include <cvrKernel/CVRViewer.h>
+#include <cvrKernel/PluginManager.h>
 
 // Plugins
 #include <MenuBasics.h>
@@ -33,7 +34,7 @@ private:
     cvr::ComController *_comController;
     cvr::TrackingManager *_trackingManager;
     cvr::Navigation *_navigation;
-    //cvr::PluginManager *_pluginManager;
+    cvr::PluginManager *_pluginManager;
 
     MenuBasics* _menuBasics;
     SpatialViz* _spatialViz;

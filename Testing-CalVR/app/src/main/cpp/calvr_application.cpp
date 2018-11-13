@@ -44,7 +44,7 @@ calvr_application::calvr_application(AAssetManager *assetManager) : _asset_manag
     _comController = cvr::ComController::instance();
     _trackingManager = cvr::TrackingManager::instance();
     _navigation = cvr::Navigation::instance();
-    //_pluginManager = cvr::PluginManager::instance();
+    _pluginManager = cvr::PluginManager::instance();
 
     _menuBasics = new MenuBasics();
     _spatialViz = new SpatialViz();
@@ -192,7 +192,7 @@ void calvr_application::onCreate(const char *calvr_path) {
         LOGI("--- MENU INITIALIZED ---");
 
     //if(!_pluginManager->init(_asset_manager))
-    //    LOGE("==========PLUG IN  FAIL=========");
+    //    LOGE("========== PLUG IN  FAIL =========");
     if(!_menuBasics->init())
         LOGE("MENU BASICS");
     else
@@ -226,17 +226,19 @@ void calvr_application::onDrawFrame(){
     _navigation->update();
     _scene->postEventUpdate();
 
-    //_pluginManager->preframe();
-    //_viewer->updateTraversal();
-    //_viewer->renderingTraversals();
-    LOGI("here? 8");
-    _viewer->frame();               // here is where it falters with SpatialViz
-    LOGI("here? 9");
+    //_pluginManager->preFrame();
+    _spatialViz->preFrame();        // testing
+    _viewer->updateTraversal();
+    _viewer->renderingTraversals();
+    //LOGI("here? 8");
+    // OLD WAY
+    //_viewer->frame();               // here is where it falters with SpatialViz
+    //LOGI("here? 9");
 
     if(_comController->getIsSyncError())
         LOGE("Sync error");
 
-    //_pluginManager->postFrame();
+    _pluginManager->postFrame();
     LOGI("FINISHED");
 }
 
@@ -271,9 +273,6 @@ void calvr_application::pressMouse(bool down, float x, float y) {
     else {
         interactionEvent->setInteraction(cvr::Interaction::BUTTON_UP);
         LOGI("=== BUTTON UP ===");
-//        osg::Vec3 pos = screenToWorldObj(x, y);
-//        createDebugOSGsphere(pos);
-//        LOGI("making new sphere at (x, y) = (%f, %f)", pos[0] , pos[2]);
     }
 
     interactionEvent->setButton(0);//primary button
@@ -294,7 +293,7 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
 //    LOGI("calvr_app - moveMouse: x = %f, y = %f", x, y);
 //    LOGI("calvr_app - moveMouse: Dx = %f, Dy = %f", delta_x, delta_y);
 
-    if(moveOBJ) {
+    /*if(moveOBJ) {
         if (currMode == MOVE_WORLD) {
             LOGI("calvr_app - MOVE_WORLD MODE");
             totalRotation = totalRotation * osg::Quat(delta_y, xAxis) * osg::Quat(delta_x, zAxis);
@@ -331,19 +330,19 @@ void calvr_application::moveMouse(float delta_x, float delta_y, float x, float y
             osg::Vec3 move = osg::Vec3(delta_x / 2.5f, 0, -delta_y / 2.5f);
             _currTrans->setPosition(prevPos + move);
         }
-    }
+    }*/
     cvr::MouseInteractionEvent * interactionEvent = new cvr::MouseInteractionEvent();
     interactionEvent->setButton(0); //primary button
     interactionEvent->setHand(0);
-//    interactionEvent->setX(x);    // no diff with coord from screenToWorld and x
-//    interactionEvent->setY(y);
+    interactionEvent->setX(x);    // no diff with coord from screenToWorld and x
+    interactionEvent->setY(y);
     interactionEvent->setInteraction(cvr::Interaction::BUTTON_DRAG);
-    LOGI("=== BUTTON DRAG === %f, %f", delta_x, delta_y);
+    LOGI("=== BUTTON DRAG === %f, %f", x, y);
     osg::Matrix m;
-    Vec3 translation = screenToWorld(x, y); // testing delta's instead of x and y
-    //translation /= 1000.0;               // 1000 here NOT in press up/down
-    m.makeTranslate(translation);       // TODO try screenToWorldObj - no visible change
+    Vec3 translation = screenToWorld(x, y);     // testing delta's instead of x and y
+    m.makeTranslate(translation);               // TODO try screenToWorldObj - no visible change
     interactionEvent->setTransform(m);
+    _trackingManager->setTouchMovePosition(x, y);       // TESTING
     _interactionManager->addEvent(interactionEvent);
 }
 
